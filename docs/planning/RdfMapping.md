@@ -34,11 +34,12 @@ URIs live under this base.
 
 | Prefix | URI pattern | Purpose | Example |
 |--------|------------|---------|---------|
-| `nw:` | `$base/entity/` | Subject IRIs | `nw:s0gje3k4m8n2p1q` |
-| `nwp:` | `$base/prop/` | Property predicates (direct) | `nwp:Website` |
-| `nws:` | `$base/schema/` | Schema classes | `nws:Person` |
-| `nwr:` | `$base/relation/` | Relation node IRIs | `nwr:r0gje3k4m8n2p1s` |
-| `nwpage:` | `$base/page/` | Page IRIs (also named graph IRIs) | `nwpage:12345` |
+| `neo:` | `$base/ontology/` | NeoWiki vocabulary terms | `neo:Relation`, `neo:source` |
+| `neo-subj:` | `$base/entity/` | Subject IRIs | `neo-subj:s0gje3k4m8n2p1q` |
+| `neo-prop:` | `$base/prop/` | Property predicates (direct) | `neo-prop:Website` |
+| `neo-schema:` | `$base/schema/` | Schema classes | `neo-schema:Person` |
+| `neo-rel:` | `$base/relation/` | Relation node IRIs | `neo-rel:r0gje3k4m8n2p1s` |
+| `neo-page:` | `$base/page/` | Page IRIs (also named graph IRIs) | `neo-page:12345` |
 
 Standard prefixes used alongside:
 
@@ -56,8 +57,8 @@ Standard prefixes used alongside:
 Each Subject becomes an RDF resource. Its Schema determines its `rdf:type`. Its label becomes `rdfs:label`.
 
 ```turtle
-nw:s0gje3k4m8n2p1q  a            nws:Person ;
-                     rdfs:label   "John Doe" .
+neo-subj:s0gje3k4m8n2p1q  a           neo-schema:Person ;
+                           rdfs:label  "John Doe" .
 ```
 
 ### Statements (non-Relation)
@@ -66,10 +67,10 @@ Each Statement becomes one or more triples using the Property Name as predicate.
 (e.g., a text property with multiple parts) produce multiple triples with the same predicate.
 
 ```turtle
-nw:s0gje3k4m8n2p1q  nwp:Website      "https://example.com"^^xsd:anyURI ;
-                     nwp:Website      "https://johndoe.dev"^^xsd:anyURI ;
-                     nwp:Age          42 ;
-                     nwp:Active       true .
+neo-subj:s0gje3k4m8n2p1q  neo-prop:Website  "https://example.com"^^xsd:anyURI ;
+                           neo-prop:Website  "https://johndoe.dev"^^xsd:anyURI ;
+                           neo-prop:Age      42 ;
+                           neo-prop:Active   true .
 ```
 
 #### Value type mapping
@@ -91,22 +92,22 @@ The mapping uses a **two-layer approach** inspired by [Wikibase's RDF model](htt
 **Layer 1 — Direct triples** for simple queries:
 
 ```turtle
-nw:s0gje3k4m8n2p1q  nwp:Has_author  nw:s0gje3k4m8n2p1r .
+neo-subj:s0gje3k4m8n2p1q  neo-prop:Has_author  neo-subj:s0gje3k4m8n2p1r .
 ```
 
 **Layer 2 — Relation nodes** preserving the Relation ID and properties:
 
 ```turtle
-nwr:r0gje3k4m8n2p1s  a                nw:Relation ;
-                      nw:source        nw:s0gje3k4m8n2p1q ;
-                      nw:target        nw:s0gje3k4m8n2p1r ;
-                      nw:relationType  nwp:Has_author ;
-                      nwp:Role         "Editor" ;
-                      nwp:Since        2019 .
+neo-rel:r0gje3k4m8n2p1s  a                neo:Relation ;
+                          neo:source        neo-subj:s0gje3k4m8n2p1q ;
+                          neo:target        neo-subj:s0gje3k4m8n2p1r ;
+                          neo:relationType  neo-prop:Has_author ;
+                          neo-prop:Role     "Editor" ;
+                          neo-prop:Since    2019 .
 ```
 
 The direct triple (Layer 1) is always emitted, even when the Relation has no properties, so that simple queries
-like `?person nwp:Has_author ?author` always work without navigating Relation nodes.
+like `?person neo-prop:Has_author ?author` always work without navigating Relation nodes.
 
 The Relation node (Layer 2) is always emitted too, because every Relation has an ID that must be preserved for
 round-tripping. Queries that need Relation properties join through the Relation node.
@@ -117,26 +118,26 @@ Page metadata is emitted as triples about the page resource. The page resource i
 IRI (see [Named Graphs](#named-graphs) below).
 
 ```turtle
-nwpage:12345  a                nw:Page ;
-              nw:pageName      "John Doe" ;
-              dcterms:created  "2024-01-15T10:30:00Z"^^xsd:dateTime ;
-              dcterms:modified "2024-06-20T14:22:00Z"^^xsd:dateTime ;
-              nw:lastEditor    "JaneDoe" ;
-              nw:category      "People" ;
-              nw:category      "Scientists" ;
-              nw:mainSubject   nw:s0gje3k4m8n2p1q ;
-              nw:hasSubject    nw:s0gje3k4m8n2p1q ;
-              nw:hasSubject    nw:s0gje3k4m8n2p2r .
+neo-page:12345  a                 neo:Page ;
+                neo:pageName      "John Doe" ;
+                dcterms:created   "2024-01-15T10:30:00Z"^^xsd:dateTime ;
+                dcterms:modified  "2024-06-20T14:22:00Z"^^xsd:dateTime ;
+                neo:lastEditor    "JaneDoe" ;
+                neo:category      "People" ;
+                neo:category      "Scientists" ;
+                neo:mainSubject   neo-subj:s0gje3k4m8n2p1q ;
+                neo:hasSubject    neo-subj:s0gje3k4m8n2p1q ;
+                neo:hasSubject    neo-subj:s0gje3k4m8n2p2r .
 ```
 
 ### Named Graphs
 
 All triples from a single wiki page are placed in a named graph identified by the page IRI. This enables:
 
-- **Efficient sync:** On page save, `DROP GRAPH <nwpage:12345>` then `INSERT DATA { GRAPH <nwpage:12345> { ... } }`
+- **Efficient sync:** On page save, `DROP GRAPH <neo-page:12345>` then `INSERT DATA { GRAPH <neo-page:12345> { ... } }`
   replaces all triples for that page atomically.
 - **Provenance:** The graph IRI tells you which wiki page the data came from.
-- **Page deletion:** `DROP GRAPH <nwpage:12345>` removes all associated triples.
+- **Page deletion:** `DROP GRAPH <neo-page:12345>` removes all associated triples.
 
 The page metadata triples themselves also live in the page's named graph.
 
@@ -146,35 +147,35 @@ A page (ID 42) with a main Subject "ACME Corp" (Company) and a child Subject "Ja
 where Jane is the CEO of ACME:
 
 ```trig
-GRAPH nwpage:42 {
+GRAPH neo-page:42 {
     # Page metadata
-    nwpage:42  a                nw:Page ;
-               nw:pageName      "ACME Corp" ;
-               dcterms:created  "2024-03-01T09:00:00Z"^^xsd:dateTime ;
-               dcterms:modified "2025-11-15T16:45:00Z"^^xsd:dateTime ;
-               nw:lastEditor    "Admin" ;
-               nw:mainSubject   nw:s0gje3k4m8n2p1q ;
-               nw:hasSubject    nw:s0gje3k4m8n2p1q ;
-               nw:hasSubject    nw:s0abc1def2ghi3j .
+    neo-page:42  a                 neo:Page ;
+                 neo:pageName      "ACME Corp" ;
+                 dcterms:created   "2024-03-01T09:00:00Z"^^xsd:dateTime ;
+                 dcterms:modified  "2025-11-15T16:45:00Z"^^xsd:dateTime ;
+                 neo:lastEditor    "Admin" ;
+                 neo:mainSubject   neo-subj:s0gje3k4m8n2p1q ;
+                 neo:hasSubject    neo-subj:s0gje3k4m8n2p1q ;
+                 neo:hasSubject    neo-subj:s0abc1def2ghi3j .
 
     # Main Subject: ACME Corp (Company)
-    nw:s0gje3k4m8n2p1q  a            nws:Company ;
-                         rdfs:label   "ACME Corp" ;
-                         nwp:Website  "https://acme.example"^^xsd:anyURI ;
-                         nwp:Founded  2019 ;
-                         nwp:CEO      nw:s0abc1def2ghi3j .
+    neo-subj:s0gje3k4m8n2p1q  a                neo-schema:Company ;
+                               rdfs:label       "ACME Corp" ;
+                               neo-prop:Website  "https://acme.example"^^xsd:anyURI ;
+                               neo-prop:Founded  2019 ;
+                               neo-prop:CEO      neo-subj:s0abc1def2ghi3j .
 
     # Relation node for CEO relation
-    nwr:r0rel1ation2id3  a                nw:Relation ;
-                          nw:source        nw:s0gje3k4m8n2p1q ;
-                          nw:target        nw:s0abc1def2ghi3j ;
-                          nw:relationType  nwp:CEO ;
-                          nwp:Since        2022 .
+    neo-rel:r0rel1ation2id3  a                neo:Relation ;
+                             neo:source        neo-subj:s0gje3k4m8n2p1q ;
+                             neo:target        neo-subj:s0abc1def2ghi3j ;
+                             neo:relationType  neo-prop:CEO ;
+                             neo-prop:Since    2022 .
 
     # Child Subject: Jane Smith (Person)
-    nw:s0abc1def2ghi3j  a            nws:Person ;
-                         rdfs:label   "Jane Smith" ;
-                         nwp:Age      45 .
+    neo-subj:s0abc1def2ghi3j  a           neo-schema:Person ;
+                               rdfs:label  "Jane Smith" ;
+                               neo-prop:Age  45 .
 }
 ```
 
@@ -185,9 +186,9 @@ On each page save, the SPARQL plugin:
 1. Maps the `Page` domain object to RDF triples (using the mapping above).
 2. Issues a SPARQL Update to the configured endpoint:
    ```sparql
-   DROP SILENT GRAPH <nwpage:42> ;
+   DROP SILENT GRAPH <neo-page:42> ;
    INSERT DATA {
-       GRAPH <nwpage:42> {
+       GRAPH <neo-page:42> {
            # ... all triples ...
        }
    }
@@ -195,7 +196,7 @@ On each page save, the SPARQL plugin:
 
 On page deletion:
 ```sparql
-DROP SILENT GRAPH <nwpage:42>
+DROP SILENT GRAPH <neo-page:42>
 ```
 
 `DROP SILENT` avoids errors when the graph does not exist (e.g., first save of a new page).
