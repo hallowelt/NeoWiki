@@ -1,6 +1,6 @@
 # RDF Mapping Design
 
-Written 2026-02-21 by Jeroen De Dauw with help from Claude Code, Opus 4.6
+Written 2026-02-23 by Jeroen De Dauw with help from Claude Opus 4.6
 
 Status: Early draft for discussion with ECHOLOT partners
 
