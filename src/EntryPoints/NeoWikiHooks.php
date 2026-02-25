@@ -60,7 +60,7 @@ class NeoWikiHooks {
 		];
 
 		if ( self::shouldShowSubjectCreator( $out ) ) {
-			$attrs['data-mw-ext-neowiki-create-subject'] = 'true';
+			$attrs['data-mw-neowiki-create-subject'] = 'true';
 		}
 
 		return Html::element( 'div', $attrs );
@@ -102,7 +102,7 @@ class NeoWikiHooks {
 			'div',
 			[
 				'class' => 'ext-neowiki-view',
-				'data-subject-id' => $subject->getId()->text,
+				'data-mw-neowiki-subject-id' => $subject->getId()->text,
 			]
 		);
 	}
@@ -116,7 +116,6 @@ class NeoWikiHooks {
 				'div',
 				[
 					'id' => 'ext-neowiki-view-schema',
-					'data-mw-schema-name' => $out->getTitle()->getText(),
 				]
 			)
 		);
