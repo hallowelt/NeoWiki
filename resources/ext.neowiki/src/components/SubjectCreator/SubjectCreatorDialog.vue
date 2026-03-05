@@ -332,7 +332,7 @@ function goBack(): void {
 	resetChanged();
 }
 
-const handleSave = async ( _summary: string ): Promise<void> => {
+const handleSave = async ( summary: string ): Promise<void> => {
 	await nextTick();
 
 	const label = subjectLabel.value.trim();
@@ -354,7 +354,8 @@ const handleSave = async ( _summary: string ): Promise<void> => {
 			mw.config.get( 'wgArticleId' ),
 			label,
 			selectedSchemaName.value,
-			new StatementList( statementsToSave )
+			new StatementList( statementsToSave ),
+			summary || undefined
 		);
 		mw.notify( mw.msg( 'neowiki-subject-creator-success' ), { type: 'success' } );
 		close();
