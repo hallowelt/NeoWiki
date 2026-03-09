@@ -2,16 +2,18 @@
 Welcome to the NeoWiki demo wiki!
 
 NeoWiki turns your wiki into a collaborative graph database by letting you store and query structured information.
-Information is stored in versioned document form inside of wiki pages. The latest version is also stored in
-graph databases via which it can be queried.
+Information is stored in versioned document form inside wiki pages. The latest version is also stored in
+graph databases, via which it can be queried.
 
-NeoWiki is in the experimental proof of concept phase. It is not production ready, public interfaces will change,
+NeoWiki is in the experimental proof-of-concept phase. It is not production-ready, public interfaces will change,
 big structural changes will happen, and key functionality is still missing.
 
-This demo exists to gather feedback to inform further development. ([https://professional.wiki/en/contact Contact Professional Wiki])
+This demo exists to gather feedback to inform further development.
 
 You can find [https://github.com/ProfessionalWiki/NeoWiki/tree/master/docs technical documentation] in the
-[https://github.com/ProfessionalWiki/NeoWiki NeoWiki git repository].
+[https://github.com/ProfessionalWiki/NeoWiki NeoWiki git repository]. You can also
+[https://github.com/ProfessionalWiki/NeoWiki/issues view the issue tracker] or
+[https://professional.wiki/en/contact contact Professional Wiki] (the maintainer of NeoWiki).
 </div>
 
 == Discover NeoWiki Step by Step ==
