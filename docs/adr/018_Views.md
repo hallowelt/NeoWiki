@@ -9,10 +9,10 @@ Status: Accepted
 We will need a way for users to customize how Subjects are displayed.
 
 Examples of things users might wish to change:
+* Which Property Definitions to show Statements for
+* The ordering of the shown Statements
 * The precision of a number
 * The color of a progress bar
-* The ordering of the shown Statements
-* Which Statements to show
 
 It should be possible for users to have multiple displays of a Subject shown on one page, and it should be possible
 for those displays to be different. For instance, on a page about a company, there might be an infobox at the top of
