@@ -7,25 +7,25 @@ namespace ProfessionalWiki\NeoWiki\Persistence\MediaWiki;
 use InvalidArgumentException;
 use ProfessionalWiki\NeoWiki\Domain\Schema\PropertyName;
 use ProfessionalWiki\NeoWiki\Domain\Schema\SchemaName;
-use ProfessionalWiki\NeoWiki\Domain\View\DisplayRule;
-use ProfessionalWiki\NeoWiki\Domain\View\DisplayRules;
-use ProfessionalWiki\NeoWiki\Domain\View\View;
-use ProfessionalWiki\NeoWiki\Domain\View\ViewName;
+use ProfessionalWiki\NeoWiki\Domain\Layout\DisplayRule;
+use ProfessionalWiki\NeoWiki\Domain\Layout\DisplayRules;
+use ProfessionalWiki\NeoWiki\Domain\Layout\Layout;
+use ProfessionalWiki\NeoWiki\Domain\Layout\LayoutName;
 
-class ViewPersistenceDeserializer {
+class LayoutPersistenceDeserializer {
 
 	/**
 	 * @throws InvalidArgumentException
 	 */
-	public function deserialize( ViewName $viewName, string $json ): View {
+	public function deserialize( LayoutName $layoutName, string $json ): Layout {
 		$data = json_decode( $json, true );
 
 		if ( !is_array( $data ) ) {
 			throw new InvalidArgumentException( 'Invalid JSON' );
 		}
 
-		return new View(
-			name: $viewName,
+		return new Layout(
+			name: $layoutName,
 			schema: new SchemaName( $data['schema'] ),
 			type: $data['type'],
 			description: $data['description'] ?? '',

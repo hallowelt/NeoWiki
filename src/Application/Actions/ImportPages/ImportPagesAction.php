@@ -22,7 +22,8 @@ class ImportPagesAction {
 		private readonly SchemaContentSource $schemaContentSource,
 		private readonly SubjectPageSource $subjectPageSource,
 		private readonly PageContentSource $pageContentSource,
-		private readonly PageContentSource $moduleContentSource
+		private readonly PageContentSource $moduleContentSource,
+		private readonly LayoutContentSource $layoutContentSource,
 	) {
 	}
 
@@ -32,6 +33,15 @@ class ImportPagesAction {
 				"Schema:$schemaName",
 				[
 					'main' => $schemaContent,
+				]
+			);
+		}
+
+		foreach ( $this->layoutContentSource->getLayouts() as $layoutName => $layoutContent ) {
+			$this->createPage(
+				"View:$layoutName",
+				[
+					'main' => $layoutContent,
 				]
 			);
 		}

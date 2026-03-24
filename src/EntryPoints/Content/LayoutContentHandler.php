@@ -8,14 +8,14 @@ use MediaWiki\Content\JsonContentHandler;
 use MediaWiki\Title\Title;
 use ProfessionalWiki\NeoWiki\NeoWikiExtension;
 
-class ViewContentHandler extends JsonContentHandler {
+class LayoutContentHandler extends JsonContentHandler {
 
 	protected function getContentClass(): string {
-		return ViewContent::class;
+		return LayoutContent::class;
 	}
 
-	public function makeEmptyContent(): ViewContent {
-		return new ViewContent( <<<JSON
+	public function makeEmptyContent(): LayoutContent {
+		return new LayoutContent( <<<JSON
 {
 	"schema": "",
 	"type": ""
@@ -25,7 +25,7 @@ JSON
 	}
 
 	public function canBeUsedOn( Title $title ): bool {
-		return $title->getNamespace() === NeoWikiExtension::NS_VIEW;
+		return $title->getNamespace() === NeoWikiExtension::NS_LAYOUT;
 	}
 
 }

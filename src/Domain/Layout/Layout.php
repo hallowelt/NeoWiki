@@ -2,17 +2,17 @@
 
 declare( strict_types = 1 );
 
-namespace ProfessionalWiki\NeoWiki\Domain\View;
+namespace ProfessionalWiki\NeoWiki\Domain\Layout;
 
 use ProfessionalWiki\NeoWiki\Domain\Schema\SchemaName;
 
-readonly class View {
+readonly class Layout {
 
 	/**
 	 * @param array<string, mixed> $settings
 	 */
 	public function __construct(
-		private ViewName $name,
+		private LayoutName $name,
 		private SchemaName $schema,
 		private string $type,
 		private string $description,
@@ -21,7 +21,7 @@ readonly class View {
 	) {
 	}
 
-	public function getName(): ViewName {
+	public function getName(): LayoutName {
 		return $this->name;
 	}
 

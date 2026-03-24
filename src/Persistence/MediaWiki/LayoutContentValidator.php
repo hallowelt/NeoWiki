@@ -9,7 +9,7 @@ use Opis\JsonSchema\Errors\ValidationError;
 use Opis\JsonSchema\Validator;
 use RuntimeException;
 
-class ViewContentValidator {
+class LayoutContentValidator {
 
 	/**
 	 * @var string[]
@@ -17,7 +17,7 @@ class ViewContentValidator {
 	private array $errors = [];
 
 	public static function newInstance(): self {
-		$json = file_get_contents( __DIR__ . '/viewContentSchema.json' );
+		$json = file_get_contents( __DIR__ . '/layoutContentSchema.json' );
 
 		if ( !is_string( $json ) ) {
 			throw new RuntimeException( 'Could not obtain JSON Schema' );

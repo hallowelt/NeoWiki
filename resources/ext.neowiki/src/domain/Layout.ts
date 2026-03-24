@@ -1,17 +1,17 @@
 import type { SchemaName } from '@/domain/Schema';
 import type { PropertyName } from '@/domain/PropertyDefinition';
 
-export type ViewName = string;
+export type LayoutName = string;
 
 export interface DisplayRule {
 	readonly property: PropertyName;
 	readonly displayAttributes?: Record<string, unknown>;
 }
 
-export class View {
+export class Layout {
 
 	public constructor(
-		private readonly name: ViewName,
+		private readonly name: LayoutName,
 		private readonly schema: SchemaName,
 		private readonly type: string,
 		private readonly description: string,
@@ -20,7 +20,7 @@ export class View {
 	) {
 	}
 
-	public getName(): ViewName {
+	public getName(): LayoutName {
 		return this.name;
 	}
 

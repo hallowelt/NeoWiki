@@ -10,12 +10,14 @@ import NumberDisplay from '@/components/Value/NumberDisplay.vue';
 import { RelationType } from '@/domain/propertyTypes/Relation.ts';
 import { TypeSpecificComponentRegistry } from '@/TypeSpecificComponentRegistry.ts';
 import { ViewTypeRegistry } from '@/ViewTypeRegistry.ts';
-import AutomaticInfobox from '@/components/Views/AutomaticInfobox.vue';
+import Infobox from '@/components/Views/Infobox.vue';
 import RelationDisplay from '@/components/Value/RelationDisplay.vue';
 import { HttpClient } from '@/infrastructure/HttpClient/HttpClient';
 import { ProductionHttpClient } from '@/infrastructure/HttpClient/ProductionHttpClient';
 import { RestSchemaRepository } from '@/persistence/RestSchemaRepository.ts';
 import { SchemaRepository } from '@/application/SchemaRepository.ts';
+import { LayoutLookup } from '@/application/LayoutLookup.ts';
+import { RestLayoutLookup } from '@/persistence/RestLayoutLookup.ts';
 import { CsrfSendingHttpClient } from '@/infrastructure/HttpClient/CsrfSendingHttpClient.ts';
 import { SchemaSerializer } from '@/persistence/SchemaSerializer.ts';
 import { SchemaDeserializer } from '@/persistence/SchemaDeserializer.ts';
@@ -92,7 +94,7 @@ export class NeoWikiExtension {
 
 	public getViewTypeRegistry(): ViewTypeRegistry {
 		const registry = new ViewTypeRegistry();
-		registry.registerType( 'infobox', AutomaticInfobox );
+		registry.registerType( 'infobox', Infobox );
 		return registry;
 	}
 
@@ -120,6 +122,13 @@ export class NeoWikiExtension {
 			new SchemaSerializer(),
 			new SchemaDeserializer(),
 			new MediaWikiPageSaver( this.getMediaWiki() ),
+		);
+	}
+
+	public getLayoutLookup(): LayoutLookup {
+		return new RestLayoutLookup(
+			this.getMediaWiki().util.wikiScript( 'rest' ),
+			this.newHttpClient(),
 		);
 	}
 
@@ -182,6 +191,7 @@ export class NeoWikiExtension {
 		return new StoreStateLoader(
 			this.getSubjectRepository(),
 			this.getSchemaRepository(),
+			this.getLayoutLookup(),
 		);
 	}
 

@@ -1,7 +1,9 @@
 import { SubjectRepository } from '@/domain/SubjectRepository.ts';
 import { SchemaRepository } from '@/application/SchemaRepository.ts';
+import type { LayoutLookup } from '@/application/LayoutLookup.ts';
 import { useSubjectStore } from '@/stores/SubjectStore.ts';
 import { useSchemaStore } from '@/stores/SchemaStore.ts';
+import { useLayoutStore } from '@/stores/LayoutStore.ts';
 import { SubjectId } from '@/domain/SubjectId.ts';
 
 /**
@@ -14,6 +16,7 @@ export class StoreStateLoader {
 	public constructor(
 		private readonly subjectRepo: SubjectRepository,
 		private readonly schemaRepo: SchemaRepository,
+		private readonly layoutLookup: LayoutLookup,
 	) {
 	}
 
@@ -22,6 +25,21 @@ export class StoreStateLoader {
 			Array.from( subjectIds ).map(
 				( subjectId ) => this.loadForSubject( new SubjectId( subjectId ) ),
 			),
+		);
+	}
+
+	public async loadLayouts( layoutNames: Set<string> ): Promise<void> {
+		const layoutStore = useLayoutStore();
+
+		await Promise.all(
+			Array.from( layoutNames ).map( async ( layoutName ) => {
+				try {
+					const layout = await this.layoutLookup.getLayout( layoutName );
+					layoutStore.setLayout( layoutName, layout );
+				} catch {
+					// Layout not found or fetch failed — fallback to no-Layout behavior
+				}
+			} ),
 		);
 	}
 

@@ -1,16 +1,17 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
-	<div v-if="subject !== null" class="ext-neowiki-auto-infobox">
-		<div class="ext-neowiki-auto-infobox__header">
-			<div class="ext-neowiki-auto-infobox__header__text">
+	<div v-if="subject !== null" class="ext-neowiki-infobox">
+		<div class="ext-neowiki-infobox__header">
+			<div class="ext-neowiki-infobox__header__text">
 				<div
-					class="ext-neowiki-auto-infobox__title"
+					class="ext-neowiki-infobox__title"
 					role="heading"
 					aria-level="2"
 				>
 					{{ subject.getLabel() }}
 				</div>
 				<div
-					class="ext-neowiki-auto-infobox__schema"
+					class="ext-neowiki-infobox__schema"
 					role="heading"
 					aria-level="3"
 				>
@@ -35,21 +36,21 @@
 				:on-save-schema="handleSaveSchema"
 			/>
 		</div>
-		<div class="ext-neowiki-auto-infobox__content">
+		<div class="ext-neowiki-infobox__content">
 			<div
-				v-for="( propertyDefinition, propertyName ) in propertiesToDisplay"
-				:key="propertyName"
-				class="ext-neowiki-auto-infobox__item"
+				v-for="resolved in resolvedProperties"
+				:key="resolved.propertyDefinition.name.toString()"
+				class="ext-neowiki-infobox__item"
 			>
-				<div class="ext-neowiki-auto-infobox__property">
-					{{ propertyName }}
+				<div class="ext-neowiki-infobox__property">
+					{{ resolved.propertyDefinition.name.toString() }}
 				</div>
-				<div class="ext-neowiki-auto-infobox__value">
+				<div class="ext-neowiki-infobox__value">
 					<component
-						:is="getComponent( propertyDefinition.type )"
-						:key="`${propertyDefinition.name}${subject?.getStatementValue( propertyDefinition.name )}-ext-neowiki-auto-infobox`"
-						:value="subject?.getStatementValue( propertyDefinition.name )"
-						:property="propertyDefinition"
+						:is="getComponent( resolved.propertyDefinition.type )"
+						:key="`${resolved.propertyDefinition.name}${resolved.value}-ext-neowiki-infobox`"
+						:value="resolved.value"
+						:property="resolved.propertyDefinition"
 					/>
 				</div>
 			</div>
@@ -61,14 +62,15 @@
 import { Component, computed, ref } from 'vue';
 import { Subject } from '@/domain/Subject.ts';
 import { Schema } from '@/domain/Schema.ts';
-import { PropertyDefinition } from '@/domain/PropertyDefinition.ts';
 import { useSchemaStore } from '@/stores/SchemaStore.ts';
+import { useLayoutStore } from '@/stores/LayoutStore.ts';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
 import SubjectEditorDialog from '@/components/SubjectEditor/SubjectEditorDialog.vue';
 import { useSubjectStore } from '@/stores/SubjectStore.ts';
 import { SubjectId } from '@/domain/SubjectId.ts';
 import { CdxButton, CdxIcon } from '@wikimedia/codex';
 import { cdxIconEdit } from '@wikimedia/codex-icons';
+import { resolveDisplayProperties, type ResolvedProperty } from '@/domain/resolveDisplayProperties.ts';
 
 const props = defineProps( {
 	subjectId: {
@@ -78,11 +80,16 @@ const props = defineProps( {
 	canEditSubject: {
 		type: Boolean,
 		required: true
+	},
+	layoutName: {
+		type: String,
+		default: undefined
 	}
 } );
 
 const subjectStore = useSubjectStore();
 const schemaStore = useSchemaStore();
+const layoutStore = useLayoutStore();
 
 const isEditorOpen = ref( false );
 
@@ -108,10 +115,18 @@ const schemaUrl = computed( () => {
 	return mw.util.getUrl( `Schema:${ schema.value.getName() }` );
 } );
 
-const propertiesToDisplay = computed( function(): Record<string, PropertyDefinition> {
-	return schema.value.getPropertyDefinitions()
-		.withNames( subject.value.getNamesOfNonEmptyProperties() )
-		.asRecord();
+const layout = computed( () => {
+	if ( !props.layoutName ) {
+		return undefined;
+	}
+	return layoutStore.getLayout( props.layoutName );
+} );
+
+const resolvedProperties = computed( (): ResolvedProperty[] => {
+	if ( !schema.value || !subject.value ) {
+		return [];
+	}
+	return resolveDisplayProperties( schema.value, subject.value, layout.value );
 } );
 
 </script>
@@ -119,7 +134,7 @@ const propertiesToDisplay = computed( function(): Record<string, PropertyDefinit
 <style lang="less">
 @import ( reference ) '@wikimedia/codex-design-tokens/theme-wikimedia-ui.less';
 
-.ext-neowiki-auto-infobox {
+.ext-neowiki-infobox {
 	margin-inline: auto;
 	margin-bottom: @spacing-100;
 	max-width: 20rem;

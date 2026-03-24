@@ -6,9 +6,10 @@
 		:to="view.element"
 	>
 		<component
-			:is="resolveViewComponent( view.viewType )"
+			:is="resolveViewComponent( view )"
 			:subject-id="view.subjectId"
 			:can-edit-subject="view.canEditSubject"
+			:layout-name="view.layoutName"
 		/>
 	</teleport>
 
@@ -21,10 +22,11 @@
 import type { Component } from 'vue';
 import { onMounted, ref } from 'vue';
 import { SubjectId } from '@/domain/SubjectId';
-import AutomaticInfobox from '@/components/Views/AutomaticInfobox.vue';
+import Infobox from '@/components/Views/Infobox.vue';
 import SubjectCreatorDialog from '@/components/SubjectCreator/SubjectCreatorDialog.vue';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
 import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
+import { useLayoutStore } from '@/stores/LayoutStore.ts';
 
 interface ViewData {
 	id: string;
@@ -32,6 +34,7 @@ interface ViewData {
 	subjectId: SubjectId;
 	canEditSubject: boolean;
 	viewType?: string;
+	layoutName?: string;
 }
 
 const props = defineProps<{
@@ -44,11 +47,20 @@ const shouldShowSubjectCreator = ref( props.showSubjectCreator );
 const subjectAuthorizer = NeoWikiServices.getSubjectAuthorizer();
 const viewTypeRegistry = NeoWikiServices.getViewTypeRegistry();
 
-function resolveViewComponent( viewType?: string ): Component {
-	if ( viewType !== undefined && viewTypeRegistry.hasType( viewType ) ) {
-		return viewTypeRegistry.getComponent( viewType );
+function resolveViewComponent( viewData: ViewData ): Component {
+	if ( viewData.layoutName ) {
+		const layoutStore = useLayoutStore();
+		const layout = layoutStore.getLayout( viewData.layoutName );
+		if ( layout && viewTypeRegistry.hasType( layout.getType() ) ) {
+			return viewTypeRegistry.getComponent( layout.getType() );
+		}
 	}
-	return AutomaticInfobox;
+
+	if ( viewData.viewType !== undefined && viewTypeRegistry.hasType( viewData.viewType ) ) {
+		return viewTypeRegistry.getComponent( viewData.viewType );
+	}
+
+	return Infobox;
 }
 
 function isLatestRevision(): boolean {
@@ -57,10 +69,16 @@ function isLatestRevision(): boolean {
 
 onMounted( async (): Promise<void> => {
 	const localViewsData = await getViewsData( document.querySelectorAll( '.ext-neowiki-view' ) );
+	const storeStateLoader = NeoWikiExtension.getInstance().getStoreStateLoader();
 
-	await NeoWikiExtension.getInstance().getStoreStateLoader().loadSubjectsAndSchemas(
-		new Set( localViewsData.map( ( viewData ) => viewData.subjectId.text ) )
-	);
+	await Promise.all( [
+		storeStateLoader.loadSubjectsAndSchemas(
+			new Set( localViewsData.map( ( viewData ) => viewData.subjectId.text ) )
+		),
+		storeStateLoader.loadLayouts(
+			new Set( localViewsData.map( ( v ) => v.layoutName ).filter( ( n ): n is string => n !== undefined ) )
+		)
+	] );
 
 	viewsData.value = localViewsData;
 } );
@@ -90,7 +108,8 @@ async function getViewData( element: HTMLElement ): Promise<ViewData|null> {
 			element: element,
 			subjectId: subjectId,
 			canEditSubject: isLatestRevision() && await subjectAuthorizer.canEditSubject( subjectId ),
-			viewType: element.dataset.mwNeowikiViewType
+			viewType: element.dataset.mwNeowikiViewType,
+			layoutName: element.dataset.mwNeowikiLayoutName
 		};
 	} catch ( error ) {
 		console.error( error );

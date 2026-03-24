@@ -2,17 +2,17 @@
 
 declare( strict_types = 1 );
 
-namespace ProfessionalWiki\NeoWiki\Domain\View;
+namespace ProfessionalWiki\NeoWiki\Domain\Layout;
 
 use InvalidArgumentException;
 
-readonly class ViewName {
+readonly class LayoutName {
 
 	public function __construct(
 		private string $text,
 	) {
 		if ( trim( $this->text ) === '' ) {
-			throw new InvalidArgumentException( 'View name cannot be empty' );
+			throw new InvalidArgumentException( 'Layout name cannot be empty' );
 		}
 	}
 

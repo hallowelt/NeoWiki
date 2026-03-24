@@ -23,6 +23,8 @@ use ProfessionalWiki\NeoWiki\Application\Actions\PatchSubject\PatchSubjectAction
 use ProfessionalWiki\NeoWiki\Application\PageIdentifiersLookup;
 use ProfessionalWiki\NeoWiki\Application\Queries\GetSchema\GetSchemaPresenter;
 use ProfessionalWiki\NeoWiki\Application\Queries\GetSchema\GetSchemaQuery;
+use ProfessionalWiki\NeoWiki\Application\Queries\GetLayout\GetLayoutPresenter;
+use ProfessionalWiki\NeoWiki\Application\Queries\GetLayout\GetLayoutQuery;
 use ProfessionalWiki\NeoWiki\Application\Queries\GetSubject\GetSubjectQuery;
 use ProfessionalWiki\NeoWiki\Infrastructure\IdGenerator;
 use ProfessionalWiki\NeoWiki\Infrastructure\ProductionIdGenerator;
@@ -30,7 +32,7 @@ use ProfessionalWiki\NeoWiki\Persistence\CompositeGraphDatabasePlugin;
 use ProfessionalWiki\NeoWiki\Persistence\GraphDatabasePlugin;
 use ProfessionalWiki\NeoWiki\Application\SchemaLookup;
 use ProfessionalWiki\NeoWiki\Application\SubjectLabelLookup;
-use ProfessionalWiki\NeoWiki\Application\ViewLookup;
+use ProfessionalWiki\NeoWiki\Application\LayoutLookup;
 use ProfessionalWiki\NeoWiki\Application\StatementListPatcher;
 use ProfessionalWiki\NeoWiki\Application\SubjectAuthorizer;
 use ProfessionalWiki\NeoWiki\Application\SubjectRepository;
@@ -42,6 +44,7 @@ use ProfessionalWiki\NeoWiki\EntryPoints\OnRevisionCreatedHandler;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\CreateSubjectApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\DeleteSubjectApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetSchemaApi;
+use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetLayoutApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetSchemaNamesApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetSchemaSummariesApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetSubjectLabelsApi;
@@ -57,9 +60,9 @@ use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\Subject\PointInTimeSubjectLoo
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\Subject\StatementDeserializer;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\Subject\SubjectContentDataDeserializer;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\Subject\SubjectContentRepository;
-use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\ViewPersistenceDeserializer;
+use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\LayoutPersistenceDeserializer;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\WikiPageSchemaLookup;
-use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\WikiPageViewLookup;
+use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\WikiPageLayoutLookup;
 use ProfessionalWiki\NeoWiki\Persistence\Neo4j\Neo4jPageIdentifiersLookup;
 use ProfessionalWiki\NeoWiki\Persistence\Neo4j\ExplainCypherQueryValidator;
 use ProfessionalWiki\NeoWiki\Persistence\Neo4j\KeywordCypherQueryValidator;
@@ -73,12 +76,13 @@ use ProfessionalWiki\NeoWiki\Presentation\FactBox;
 use ProfessionalWiki\NeoWiki\Presentation\RestGetSubjectPresenter;
 use ProfessionalWiki\NeoWiki\Presentation\ViewHtmlBuilder;
 use ProfessionalWiki\NeoWiki\Presentation\SchemaPresentationSerializer;
+use ProfessionalWiki\NeoWiki\Presentation\LayoutPresentationSerializer;
 use Wikimedia\Rdbms\IDatabase;
 
 class NeoWikiExtension {
 
 	public const int NS_SCHEMA = 7474;
-	public const int NS_VIEW = 7476;
+	public const int NS_LAYOUT = 7476;
 
 	private PropertyTypeRegistry $propertyTypeRegistry;
 	private SubjectRepository $subjectRepository;
@@ -302,6 +306,14 @@ class NeoWikiExtension {
 		);
 	}
 
+	public function newGetLayoutQuery( GetLayoutPresenter $presenter ): GetLayoutQuery {
+		return new GetLayoutQuery(
+			presenter: $presenter,
+			layoutLookup: $this->getLayoutLookup(),
+			serializer: new LayoutPresentationSerializer(),
+		);
+	}
+
 	public function getSchemaLookup(): SchemaLookup {
 		return new WikiPageSchemaLookup(
 			pageContentFetcher: $this->getPageContentFetcher(),
@@ -320,16 +332,16 @@ class NeoWikiExtension {
 		);
 	}
 
-	public function getViewLookup(): ViewLookup {
-		return new WikiPageViewLookup(
+	public function getLayoutLookup(): LayoutLookup {
+		return new WikiPageLayoutLookup(
 			pageContentFetcher: $this->getPageContentFetcher(),
 			authority: $this->getRequestAuthority(),
-			viewDeserializer: $this->getViewPersistenceDeserializer()
+			layoutDeserializer: $this->getLayoutPersistenceDeserializer()
 		);
 	}
 
-	private function getViewPersistenceDeserializer(): ViewPersistenceDeserializer {
-		return new ViewPersistenceDeserializer();
+	private function getLayoutPersistenceDeserializer(): LayoutPersistenceDeserializer {
+		return new LayoutPersistenceDeserializer();
 	}
 
 	public function getSchemaNameLookup(): SchemaNameLookup {
@@ -415,6 +427,10 @@ class NeoWikiExtension {
 
 	public static function newGetSchemaApi(): GetSchemaApi {
 		return new GetSchemaApi();
+	}
+
+	public static function newGetLayoutApi(): GetLayoutApi {
+		return new GetLayoutApi();
 	}
 
 	public static function newGetSchemaNamesApi(): GetSchemaNamesApi {

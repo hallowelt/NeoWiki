@@ -5,24 +5,24 @@ declare( strict_types = 1 );
 namespace ProfessionalWiki\NeoWiki\Tests\Persistence\MediaWiki;
 
 use PHPUnit\Framework\TestCase;
-use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\ViewContentValidator;
+use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\LayoutContentValidator;
 
 /**
- * @covers \ProfessionalWiki\NeoWiki\Persistence\MediaWiki\ViewContentValidator
+ * @covers \ProfessionalWiki\NeoWiki\Persistence\MediaWiki\LayoutContentValidator
  */
-class ViewContentValidatorTest extends TestCase {
+class LayoutContentValidatorTest extends TestCase {
 
-	public function testMinimalValidView(): void {
+	public function testMinimalValidLayout(): void {
 		$this->assertTrue(
-			ViewContentValidator::newInstance()->validate(
+			LayoutContentValidator::newInstance()->validate(
 				'{ "schema": "Company", "type": "infobox" }'
 			)
 		);
 	}
 
-	public function testFullValidView(): void {
+	public function testFullValidLayout(): void {
 		$this->assertTrue(
-			ViewContentValidator::newInstance()->validate( json_encode( [
+			LayoutContentValidator::newInstance()->validate( json_encode( [
 				'schema' => 'Company',
 				'type' => 'infobox',
 				'description' => 'Key financial data',
@@ -37,7 +37,7 @@ class ViewContentValidatorTest extends TestCase {
 
 	public function testEmptyDisplayRulesIsValid(): void {
 		$this->assertTrue(
-			ViewContentValidator::newInstance()->validate(
+			LayoutContentValidator::newInstance()->validate(
 				'{ "schema": "Company", "type": "infobox", "displayRules": [] }'
 			)
 		);
@@ -45,12 +45,12 @@ class ViewContentValidatorTest extends TestCase {
 
 	public function testEmptyJsonFails(): void {
 		$this->assertFalse(
-			ViewContentValidator::newInstance()->validate( '{}' )
+			LayoutContentValidator::newInstance()->validate( '{}' )
 		);
 	}
 
 	public function testMissingSchemaFails(): void {
-		$validator = ViewContentValidator::newInstance();
+		$validator = LayoutContentValidator::newInstance();
 
 		$this->assertFalse(
 			$validator->validate( '{ "type": "infobox" }' )
@@ -63,7 +63,7 @@ class ViewContentValidatorTest extends TestCase {
 	}
 
 	public function testMissingTypeFails(): void {
-		$validator = ViewContentValidator::newInstance();
+		$validator = LayoutContentValidator::newInstance();
 
 		$this->assertFalse(
 			$validator->validate( '{ "schema": "Company" }' )
@@ -77,7 +77,7 @@ class ViewContentValidatorTest extends TestCase {
 
 	public function testEmptySchemaNameFails(): void {
 		$this->assertFalse(
-			ViewContentValidator::newInstance()->validate(
+			LayoutContentValidator::newInstance()->validate(
 				'{ "schema": "", "type": "infobox" }'
 			)
 		);
@@ -85,7 +85,7 @@ class ViewContentValidatorTest extends TestCase {
 
 	public function testEmptyTypeNameFails(): void {
 		$this->assertFalse(
-			ViewContentValidator::newInstance()->validate(
+			LayoutContentValidator::newInstance()->validate(
 				'{ "schema": "Company", "type": "" }'
 			)
 		);
@@ -93,7 +93,7 @@ class ViewContentValidatorTest extends TestCase {
 
 	public function testDisplayRuleWithoutPropertyFails(): void {
 		$this->assertFalse(
-			ViewContentValidator::newInstance()->validate( json_encode( [
+			LayoutContentValidator::newInstance()->validate( json_encode( [
 				'schema' => 'Company',
 				'type' => 'infobox',
 				'displayRules' => [
@@ -105,7 +105,7 @@ class ViewContentValidatorTest extends TestCase {
 
 	public function testStructurallyInvalidJsonFails(): void {
 		$this->assertFalse(
-			ViewContentValidator::newInstance()->validate( '}{' )
+			LayoutContentValidator::newInstance()->validate( '}{' )
 		);
 	}
 

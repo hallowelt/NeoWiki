@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace ProfessionalWiki\NeoWiki\Domain\View;
+namespace ProfessionalWiki\NeoWiki\Domain\Layout;
 
 use ProfessionalWiki\NeoWiki\Domain\Schema\PropertyName;
 
