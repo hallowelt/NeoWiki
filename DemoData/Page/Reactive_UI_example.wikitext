@@ -9,7 +9,7 @@ Data is displayed multiple times in different forms, demonstrating automatic and
 {{#view: s1demo1aaaaaaa2}}
 {{#view: s1demo1aaaaaaa1}}
 
-## Placeholder Text
+== Placeholder Text ==
 
 How to explain? How to describe? Even the omniscient viewpoint quails.
 
