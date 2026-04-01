@@ -144,6 +144,7 @@
 	"neowiki-layout-display-view-type": "View type",
 	"neowiki-layout-display-rules-caption": "Display rules",
 	"neowiki-layout-display-rule-property": "Property",
+	"neowiki-layout-display-rule-type": "Type",
 	"neowiki-layout-display-rule-attributes": "Display attributes",
 	"neowiki-layout-display-no-rules": "All properties shown in schema order",
 

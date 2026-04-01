@@ -1,39 +1,41 @@
 <template>
 	<div class="ext-neowiki-layout-display">
-		<LayoutDisplayHeader
-			:layout="currentLayout"
-			:can-edit-layout="canEditLayout"
-			@edit="isEditorOpen = true"
-		/>
-
-		<div class="ext-neowiki-layout-display__metadata">
-			<div class="ext-neowiki-layout-display__metadata-item">
-				<span class="ext-neowiki-layout-display__metadata-label">
-					{{ $i18n( 'neowiki-layout-display-schema' ).text() }}
-				</span>
-				<a :href="schemaPageUrl">{{ currentLayout.getSchema() }}</a>
-			</div>
-			<div class="ext-neowiki-layout-display__metadata-item">
-				<span class="ext-neowiki-layout-display__metadata-label">
-					{{ $i18n( 'neowiki-layout-display-view-type' ).text() }}
-				</span>
-				<span>{{ currentLayout.getType() }}</span>
-			</div>
-		</div>
-
 		<CdxTable
-			v-if="hasDisplayRules"
-			:columns="columns"
+			:columns="hasDisplayRules ? columns : []"
 			:data="displayRuleRows"
-			:caption="$i18n( 'neowiki-layout-display-rules-caption' ).text()"
+			:caption="currentLayout.getName()"
+			:use-row-headers="true"
 			:hide-caption="true"
-		/>
-		<p
-			v-else
-			class="ext-neowiki-layout-display__no-rules"
 		>
-			{{ $i18n( 'neowiki-layout-display-no-rules' ).text() }}
-		</p>
+			<template #header>
+				<LayoutDisplayHeader
+					:layout="currentLayout"
+					:can-edit-layout="canEditLayout"
+					@edit="isEditorOpen = true"
+				/>
+			</template>
+
+			<template #item-property="{ item }">
+				{{ item }}
+			</template>
+
+			<template #item-type="{ item }">
+				<CdxInfoChip
+					v-if="item"
+					:icon="getIcon( item )"
+				>
+					{{ getTypeLabel( item ) }}
+				</CdxInfoChip>
+				<span
+					v-else
+					class="ext-neowiki-layout-display__empty-value"
+				>-</span>
+			</template>
+
+			<template #empty-state>
+				{{ $i18n( 'neowiki-layout-display-no-rules' ).text() }}
+			</template>
+		</CdxTable>
 
 		<LayoutEditorDialog
 			v-if="canEditLayout"
@@ -49,12 +51,15 @@
 <script setup lang="ts">
 import { computed, shallowRef, watch } from 'vue';
 import { Layout } from '@/domain/Layout.ts';
-import { CdxTable } from '@wikimedia/codex';
+import { NeoWikiServices } from '@/NeoWikiServices.ts';
+import { CdxTable, CdxInfoChip } from '@wikimedia/codex';
 import type { TableColumn } from '@wikimedia/codex';
+import type { Icon } from '@wikimedia/codex-icons';
 import LayoutDisplayHeader from './LayoutDisplayHeader.vue';
 import LayoutEditorDialog from '@/components/LayoutEditor/LayoutEditorDialog.vue';
 import { useLayoutPermissions } from '@/composables/useLayoutPermissions.ts';
 import { useLayoutStore } from '@/stores/LayoutStore.ts';
+import type { PropertyDefinition } from '@/domain/PropertyDefinition.ts';
 
 const props = defineProps( {
 	layout: {
@@ -66,13 +71,23 @@ const props = defineProps( {
 const isEditorOpen = shallowRef( false );
 const currentLayout = shallowRef<Layout>( props.layout );
 const { canEditLayout, checkEditPermission } = useLayoutPermissions();
+const componentRegistry = NeoWikiServices.getComponentRegistry();
+const schemaRepo = NeoWikiServices.getSchemaRepository();
+const schemaProperties = shallowRef<PropertyDefinition[]>( [] );
 
 watch( () => props.layout, ( newLayout ) => {
 	currentLayout.value = newLayout;
 	checkEditPermission( newLayout.getName() );
 }, { immediate: true } );
 
-const schemaPageUrl = computed( () => mw.util.getUrl( `Schema:${ currentLayout.value.getSchema() }` ) );
+watch( () => currentLayout.value.getSchema(), async ( schemaName ) => {
+	try {
+		const schema = await schemaRepo.getSchema( schemaName );
+		schemaProperties.value = [ ...schema.getPropertyDefinitions() ];
+	} catch {
+		schemaProperties.value = [];
+	}
+}, { immediate: true } );
 
 const hasDisplayRules = computed( () => currentLayout.value.getDisplayRules().length > 0 );
 
@@ -82,19 +97,30 @@ const columns = computed<TableColumn[]>( () => [
 		label: mw.msg( 'neowiki-layout-display-rule-property' )
 	},
 	{
-		id: 'displayAttributes',
-		label: mw.msg( 'neowiki-layout-display-rule-attributes' )
+		id: 'type',
+		label: mw.msg( 'neowiki-layout-display-rule-type' )
 	}
 ] );
+
+function getPropertyType( propertyName: string ): string | undefined {
+	const prop = schemaProperties.value.find( ( p ) => p.name.toString() === propertyName );
+	return prop?.type;
+}
 
 const displayRuleRows = computed( () =>
 	currentLayout.value.getDisplayRules().map( ( rule ) => ( {
 		property: rule.property.toString(),
-		displayAttributes: rule.displayAttributes && Object.keys( rule.displayAttributes ).length > 0 ?
-			JSON.stringify( rule.displayAttributes ) :
-			'-'
+		type: getPropertyType( rule.property.toString() )
 	} ) )
 );
+
+function getIcon( propertyType: string ): Icon {
+	return componentRegistry.getIcon( propertyType );
+}
+
+function getTypeLabel( propertyType: string ): string {
+	return mw.msg( componentRegistry.getLabel( propertyType ) );
+}
 
 const layoutStore = useLayoutStore();
 
@@ -113,23 +139,17 @@ const onLayoutSaved = ( layout: Layout ): void => {
 .ext-neowiki-layout-display {
 	max-width: 64rem;
 
-	&__metadata {
-		display: flex;
-		gap: @spacing-200;
-		margin-block: @spacing-100;
+	.cdx-table__header__caption {
+		display: none;
 	}
 
-	&__metadata-item {
-		display: flex;
-		gap: @spacing-50;
+	.cdx-table__header__content {
+		flex-grow: 1;
 	}
 
-	&__metadata-label {
-		font-weight: @font-weight-bold;
-	}
-
-	&__no-rules {
+	&__empty-value {
 		color: @color-subtle;
+		user-select: none;
 	}
 }
 </style>

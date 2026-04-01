@@ -10,6 +10,20 @@
 			>
 				{{ layout.getDescription() }}
 			</div>
+			<div class="ext-neowiki-layout-display-header__metadata">
+				<span class="ext-neowiki-layout-display-header__metadata-item">
+					<span class="ext-neowiki-layout-display-header__metadata-label">
+						{{ $i18n( 'neowiki-layout-display-schema' ).text() }}
+					</span>
+					<a :href="schemaPageUrl">{{ layout.getSchema() }}</a>
+				</span>
+				<span class="ext-neowiki-layout-display-header__metadata-item">
+					<span class="ext-neowiki-layout-display-header__metadata-label">
+						{{ $i18n( 'neowiki-layout-display-view-type' ).text() }}
+					</span>
+					<span>{{ layout.getType() }}</span>
+				</span>
+			</div>
 		</div>
 		<div class="ext-neowiki-layout-display-header__actions">
 			<CdxButton
@@ -25,11 +39,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Layout } from '@/domain/Layout.ts';
 import { CdxButton, CdxIcon } from '@wikimedia/codex';
 import { cdxIconEdit } from '@wikimedia/codex-icons';
 
-defineProps( {
+const props = defineProps( {
 	layout: {
 		type: Layout,
 		required: true
@@ -43,6 +58,8 @@ defineProps( {
 const emit = defineEmits<{
 	edit: [];
 }>();
+
+const schemaPageUrl = computed( () => mw.util.getUrl( `Schema:${ props.layout.getSchema() }` ) );
 </script>
 
 <style lang="less">
@@ -63,6 +80,21 @@ const emit = defineEmits<{
 	}
 
 	&__description {
+		color: @color-subtle;
+	}
+
+	&__metadata {
+		display: flex;
+		gap: @spacing-200;
+		margin-block-start: @spacing-50;
+	}
+
+	&__metadata-item {
+		display: flex;
+		gap: @spacing-50;
+	}
+
+	&__metadata-label {
 		color: @color-subtle;
 	}
 }

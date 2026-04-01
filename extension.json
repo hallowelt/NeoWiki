@@ -351,6 +351,7 @@
 				"neowiki-layout-display-view-type",
 				"neowiki-layout-display-rules-caption",
 				"neowiki-layout-display-rule-property",
+				"neowiki-layout-display-rule-type",
 				"neowiki-layout-display-rule-attributes",
 				"neowiki-layout-display-no-rules",
 				"neowiki-editing-layout",

@@ -71,6 +71,7 @@
 	"neowiki-layout-display-view-type": "Label for the view type field in the layout display.",
 	"neowiki-layout-display-rules-caption": "Caption for the display rules table in the layout display (hidden visually).",
 	"neowiki-layout-display-rule-property": "Column header for the property name in the display rules table.",
+	"neowiki-layout-display-rule-type": "Column header for the property type in the display rules table.",
 	"neowiki-layout-display-rule-attributes": "Column header for display attributes in the display rules table.",
 	"neowiki-layout-display-no-rules": "Message shown when a layout has no display rules, meaning all schema properties are shown in their default order.",
 
