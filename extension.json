@@ -50,7 +50,9 @@
 
 		"SpecialPage_initList": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onSpecialPageInitList",
 
-		"ContentModelCanBeUsedOn": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onContentModelCanBeUsedOn"
+		"ContentModelCanBeUsedOn": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onContentModelCanBeUsedOn",
+
+		"SidebarBeforeOutput": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onSidebarBeforeOutput"
 	},
 
 	"ContentHandlers": {
@@ -351,7 +353,6 @@
 				"neowiki-layout-display-view-type",
 				"neowiki-layout-display-rules-caption",
 				"neowiki-layout-display-rule-property",
-				"neowiki-layout-display-rule-type",
 				"neowiki-layout-display-rule-attributes",
 				"neowiki-layout-display-no-rules",
 				"neowiki-editing-layout",

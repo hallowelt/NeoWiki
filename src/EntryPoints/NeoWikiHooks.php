@@ -27,6 +27,7 @@ use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\SchemaContentValidator;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\Subject\MediaWikiSubjectRepository;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\LayoutContentValidator;
 use ProfessionalWiki\NeoWiki\Presentation\JsonSchemaErrorFormatter;
+use MediaWiki\SpecialPage\SpecialPage;
 use Skin;
 use WikiPage;
 
@@ -254,6 +255,26 @@ class NeoWikiHooks {
 
 	private static function isLayoutPage( OutputPage $out ): bool {
 		return $out->getTitle()->getNamespace() === NeoWikiExtension::NS_LAYOUT;
+	}
+
+	public static function onSidebarBeforeOutput( Skin $skin, array &$sidebar ): void {
+		$title = $skin->getTitle();
+
+		if ( $title === null ) {
+			return;
+		}
+
+		if ( $title->getNamespace() === NeoWikiExtension::NS_LAYOUT ) {
+			$sidebar['TOOLBOX'] ??= [];
+			array_unshift(
+				$sidebar['TOOLBOX'],
+				[
+					'text' => wfMessage( 'neowiki-special-layouts' )->text(),
+					'href' => SpecialPage::getTitleFor( 'Layouts' )->getLocalURL(),
+					'id' => 't-neowiki-layouts',
+				]
+			);
+		}
 	}
 
 	private static function handleLayoutPage( OutputPage $out ): void {

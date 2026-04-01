@@ -15,21 +15,26 @@
 				/>
 			</template>
 
-			<template #item-property="{ item }">
-				{{ item }}
+			<template #item-property="{ item, row }">
+				<span class="ext-neowiki-layout-display__property-cell">
+					{{ item }}
+					<CdxInfoChip
+						v-if="row.type"
+						:icon="getIcon( row.type )"
+					>
+						{{ getTypeLabel( row.type ) }}
+					</CdxInfoChip>
+				</span>
 			</template>
 
-			<template #item-type="{ item }">
-				<CdxInfoChip
-					v-if="item"
-					:icon="getIcon( item )"
-				>
-					{{ getTypeLabel( item ) }}
-				</CdxInfoChip>
+			<template #item-displayAttributes="{ item }">
 				<span
-					v-else
+					v-if="!item"
 					class="ext-neowiki-layout-display__empty-value"
 				>-</span>
+				<template v-else>
+					{{ item }}
+				</template>
 			</template>
 
 			<template #empty-state>
@@ -97,8 +102,8 @@ const columns = computed<TableColumn[]>( () => [
 		label: mw.msg( 'neowiki-layout-display-rule-property' )
 	},
 	{
-		id: 'type',
-		label: mw.msg( 'neowiki-layout-display-rule-type' )
+		id: 'displayAttributes',
+		label: mw.msg( 'neowiki-layout-display-rule-attributes' )
 	}
 ] );
 
@@ -108,10 +113,15 @@ function getPropertyType( propertyName: string ): string | undefined {
 }
 
 const displayRuleRows = computed( () =>
-	currentLayout.value.getDisplayRules().map( ( rule ) => ( {
-		property: rule.property.toString(),
-		type: getPropertyType( rule.property.toString() )
-	} ) )
+	currentLayout.value.getDisplayRules().map( ( rule ) => {
+		const attrs = rule.displayAttributes;
+		const hasAttrs = attrs && Object.keys( attrs ).length > 0;
+		return {
+			property: rule.property.toString(),
+			type: getPropertyType( rule.property.toString() ),
+			displayAttributes: hasAttrs ? JSON.stringify( attrs ) : undefined
+		};
+	} )
 );
 
 function getIcon( propertyType: string ): Icon {
@@ -145,6 +155,12 @@ const onLayoutSaved = ( layout: Layout ): void => {
 
 	.cdx-table__header__content {
 		flex-grow: 1;
+	}
+
+	&__property-cell {
+		display: inline-flex;
+		align-items: center;
+		gap: @spacing-50;
 	}
 
 	&__empty-value {
