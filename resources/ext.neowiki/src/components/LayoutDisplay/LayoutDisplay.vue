@@ -59,8 +59,8 @@ import { useLayoutStore } from '@/stores/LayoutStore.ts';
 const props = defineProps( {
 	layout: {
 		type: Layout,
-		required: true,
-	},
+		required: true
+	}
 } );
 
 const isEditorOpen = shallowRef( false );
@@ -72,30 +72,28 @@ watch( () => props.layout, ( newLayout ) => {
 	checkEditPermission( newLayout.getName() );
 }, { immediate: true } );
 
-const schemaPageUrl = computed( () => {
-	return mw.util.getUrl( `Schema:${ currentLayout.value.getSchema() }` );
-} );
+const schemaPageUrl = computed( () => mw.util.getUrl( `Schema:${ currentLayout.value.getSchema() }` ) );
 
 const hasDisplayRules = computed( () => currentLayout.value.getDisplayRules().length > 0 );
 
 const columns = computed<TableColumn[]>( () => [
 	{
 		id: 'property',
-		label: mw.msg( 'neowiki-layout-display-rule-property' ),
+		label: mw.msg( 'neowiki-layout-display-rule-property' )
 	},
 	{
 		id: 'displayAttributes',
-		label: mw.msg( 'neowiki-layout-display-rule-attributes' ),
-	},
+		label: mw.msg( 'neowiki-layout-display-rule-attributes' )
+	}
 ] );
 
 const displayRuleRows = computed( () =>
 	currentLayout.value.getDisplayRules().map( ( rule ) => ( {
 		property: rule.property.toString(),
-		displayAttributes: rule.displayAttributes && Object.keys( rule.displayAttributes ).length > 0
-			? JSON.stringify( rule.displayAttributes )
-			: '-',
-	} ) ),
+		displayAttributes: rule.displayAttributes && Object.keys( rule.displayAttributes ).length > 0 ?
+			JSON.stringify( rule.displayAttributes ) :
+			'-'
+	} ) )
 );
 
 const layoutStore = useLayoutStore();

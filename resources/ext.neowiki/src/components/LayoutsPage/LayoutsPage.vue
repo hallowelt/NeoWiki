@@ -46,7 +46,7 @@ import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
 const paginationSizeOptions: { value: number }[] = [
 	{ value: 10 },
 	{ value: 20 },
-	{ value: 50 },
+	{ value: 50 }
 ];
 
 const loading = ref( true );
@@ -64,20 +64,20 @@ const rows = ref<LayoutRow[]>( [] );
 const columns: TableColumn[] = [
 	{
 		id: 'name',
-		label: mw.msg( 'neowiki-layouts-column-name' ),
+		label: mw.msg( 'neowiki-layouts-column-name' )
 	},
 	{
 		id: 'schema',
-		label: mw.msg( 'neowiki-layouts-column-schema' ),
+		label: mw.msg( 'neowiki-layouts-column-schema' )
 	},
 	{
 		id: 'type',
-		label: mw.msg( 'neowiki-layouts-column-type' ),
+		label: mw.msg( 'neowiki-layouts-column-type' )
 	},
 	{
 		id: 'description',
-		label: mw.msg( 'neowiki-layouts-column-description' ),
-	},
+		label: mw.msg( 'neowiki-layouts-column-description' )
+	}
 ];
 
 function layoutUrl( name: string ): string {
@@ -103,7 +103,7 @@ async function fetchLayouts( offset: number, limit: number ): Promise<void> {
 	const httpClient = NeoWikiExtension.getInstance().newHttpClient();
 
 	const response = await httpClient.get(
-		`${ restApiUrl }/neowiki/v0/layouts?limit=${ limit }&offset=${ offset }`,
+		`${ restApiUrl }/neowiki/v0/layouts?limit=${ limit }&offset=${ offset }`
 	);
 
 	if ( !response.ok ) {
@@ -117,7 +117,7 @@ async function fetchLayouts( offset: number, limit: number ): Promise<void> {
 		name: summary.name,
 		schema: summary.schema,
 		type: summary.type,
-		description: summary.description,
+		description: summary.description
 	} ) );
 
 	totalRows.value = result.totalRows;

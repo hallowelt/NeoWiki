@@ -95,8 +95,8 @@ const handleSave = async ( summary: string ): Promise<void> => {
 			error instanceof Error ? error.message : String( error ),
 			{
 				title: mw.msg( 'neowiki-layout-editor-error', layoutName ),
-				type: 'error',
-			},
+				type: 'error'
+			}
 		);
 	}
 };

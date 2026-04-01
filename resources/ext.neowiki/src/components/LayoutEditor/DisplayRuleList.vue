@@ -52,7 +52,7 @@ const emit = defineEmits<{
 const listRef = ref<HTMLElement | null>( null );
 
 const enabledNames = computed( () =>
-	new Set( props.displayRules.map( ( r ) => r.property.toString() ) ),
+	new Set( props.displayRules.map( ( r ) => r.property.toString() ) )
 );
 
 function isEnabled( name: string ): boolean {
@@ -62,12 +62,12 @@ function isEnabled( name: string ): boolean {
 const orderedProperties = computed( () => {
 	const enabled = props.displayRules
 		.map( ( rule ) =>
-			props.schemaProperties.find( ( p ) => p.name.toString() === rule.property.toString() ),
+			props.schemaProperties.find( ( p ) => p.name.toString() === rule.property.toString() )
 		)
 		.filter( Boolean ) as PropertyDefinition[];
 
 	const disabled = props.schemaProperties.filter(
-		( p ) => !enabledNames.value.has( p.name.toString() ),
+		( p ) => !enabledNames.value.has( p.name.toString() )
 	);
 
 	return [ ...enabled, ...disabled ];
@@ -91,7 +91,7 @@ useSortable( listRef, {
 		const [ moved ] = enabledRules.splice( oldIndex, 1 );
 		enabledRules.splice( newIndex, 0, moved );
 		emit( 'update:display-rules', enabledRules );
-	},
+	}
 } );
 </script>
 

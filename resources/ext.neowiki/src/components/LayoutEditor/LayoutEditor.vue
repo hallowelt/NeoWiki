@@ -106,9 +106,9 @@ defineExpose( {
 			props.initialLayout.getType(),
 			description.value,
 			showAllProperties.value ? [] : currentDisplayRules.value,
-			props.initialLayout.getSettings(),
+			props.initialLayout.getSettings()
 		);
-	},
+	}
 } );
 </script>
 

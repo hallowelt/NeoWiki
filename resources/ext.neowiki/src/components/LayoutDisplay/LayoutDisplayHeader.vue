@@ -32,12 +32,12 @@ import { cdxIconEdit } from '@wikimedia/codex-icons';
 defineProps( {
 	layout: {
 		type: Layout,
-		required: true,
+		required: true
 	},
 	canEditLayout: {
 		type: Boolean,
-		required: true,
-	},
+		required: true
+	}
 } );
 
 const emit = defineEmits<{
