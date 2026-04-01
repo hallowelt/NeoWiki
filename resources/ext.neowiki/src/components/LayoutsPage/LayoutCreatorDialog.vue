@@ -110,13 +110,3 @@ async function handleSave( summary: string ): Promise<void> {
 	}
 }
 </script>
-
-<style lang="less">
-@import ( reference ) '@wikimedia/codex-design-tokens/theme-wikimedia-ui.less';
-
-.ext-neowiki-layout-creator-dialog {
-	&.cdx-dialog {
-		max-width: @size-1600;
-	}
-}
-</style>
