@@ -186,7 +186,6 @@
 	"neowiki-layout-delete-confirm-title": "Delete layout?",
 	"neowiki-layout-delete-confirm-message": "The layout \"$1\" will be permanently deleted.",
 	"neowiki-layout-delete-confirm-delete": "Delete",
-	"neowiki-layout-delete-confirm-cancel": "Cancel",
 	"neowiki-layout-delete-summary-default": "Delete layout via NeoWiki UI",
 	"neowiki-layout-delete-success": "Deleted $1 layout",
 	"neowiki-layout-delete-error": "Failed to delete $1 layout."

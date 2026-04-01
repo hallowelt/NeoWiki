@@ -88,14 +88,18 @@
 			:open="isDeleteConfirmOpen"
 			:title="$i18n( 'neowiki-layout-delete-confirm-title' ).text()"
 			:use-close-button="true"
-			:stacked-actions="true"
-			:primary-action="deleteAction"
-			:default-action="cancelAction"
 			@update:open="isDeleteConfirmOpen = $event"
-			@primary="executeDelete"
-			@default="isDeleteConfirmOpen = false"
 		>
 			{{ $i18n( 'neowiki-layout-delete-confirm-message', deletingLayoutName ).text() }}
+
+			<template #footer>
+				<EditSummary
+					help-text=""
+					:save-button-label="$i18n( 'neowiki-layout-delete-confirm-delete' ).text()"
+					:save-disabled="false"
+					@save="executeDelete"
+				/>
+			</template>
 		</CdxDialog>
 	</div>
 </template>
@@ -103,7 +107,7 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted } from 'vue';
 import { CdxButton, CdxDialog, CdxIcon, CdxTable } from '@wikimedia/codex';
-import type { TableColumn, PrimaryDialogAction, DialogAction } from '@wikimedia/codex';
+import type { TableColumn } from '@wikimedia/codex';
 import { cdxIconAdd, cdxIconEdit, cdxIconTrash } from '@wikimedia/codex-icons';
 import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
 import { useLayoutPermissions } from '@/composables/useLayoutPermissions.ts';
@@ -111,6 +115,7 @@ import { useLayoutStore } from '@/stores/LayoutStore.ts';
 import { Layout } from '@/domain/Layout.ts';
 import LayoutCreatorDialog from './LayoutCreatorDialog.vue';
 import LayoutEditorDialog from '@/components/LayoutEditor/LayoutEditorDialog.vue';
+import EditSummary from '@/components/common/EditSummary.vue';
 
 const paginationSizeOptions: { value: number }[] = [
 	{ value: 10 },
@@ -131,15 +136,6 @@ const editingLayout = shallowRef<Layout | null>( null );
 
 const isDeleteConfirmOpen = ref( false );
 const deletingLayoutName = ref( '' );
-
-const deleteAction: PrimaryDialogAction = {
-	label: mw.msg( 'neowiki-layout-delete-confirm-delete' ),
-	actionType: 'destructive'
-};
-
-const cancelAction: DialogAction = {
-	label: mw.msg( 'neowiki-layout-delete-confirm-cancel' )
-};
 
 interface LayoutRow {
 	name: string;
@@ -256,9 +252,10 @@ function confirmDelete( layoutName: string ): void {
 	isDeleteConfirmOpen.value = true;
 }
 
-async function executeDelete(): Promise<void> {
+async function executeDelete( summary: string ): Promise<void> {
 	isDeleteConfirmOpen.value = false;
 	const name = deletingLayoutName.value;
+	const reason = summary || mw.msg( 'neowiki-layout-delete-summary-default' );
 
 	try {
 		const api = new mw.Api();
@@ -266,7 +263,7 @@ async function executeDelete(): Promise<void> {
 		await api.post( {
 			action: 'delete',
 			title: `Layout:${ name }`,
-			reason: mw.msg( 'neowiki-layout-delete-summary-default' ),
+			reason: reason,
 			token: token
 		} );
 		mw.notify( mw.msg( 'neowiki-layout-delete-success', name ), { type: 'success' } );
