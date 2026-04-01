@@ -90,7 +90,9 @@
 			:use-close-button="true"
 			@update:open="isDeleteConfirmOpen = $event"
 		>
-			{{ $i18n( 'neowiki-layout-delete-confirm-message', deletingLayoutName ).text() }}
+			<I18nSlot message-key="neowiki-layout-delete-confirm-message">
+				<strong>{{ deletingLayoutName }}</strong>
+			</I18nSlot>
 
 			<template #footer>
 				<EditSummary
@@ -116,6 +118,7 @@ import { Layout } from '@/domain/Layout.ts';
 import LayoutCreatorDialog from './LayoutCreatorDialog.vue';
 import LayoutEditorDialog from '@/components/LayoutEditor/LayoutEditorDialog.vue';
 import EditSummary from '@/components/common/EditSummary.vue';
+import I18nSlot from '@/components/common/I18nSlot.vue';
 
 const paginationSizeOptions: { value: number }[] = [
 	{ value: 10 },
