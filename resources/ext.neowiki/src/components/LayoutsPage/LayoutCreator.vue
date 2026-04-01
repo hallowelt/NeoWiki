@@ -20,7 +20,7 @@
 				v-model:selected="selectedSchema"
 				:menu-items="schemaMenuItems"
 				:default-label="$i18n( 'neowiki-layout-creator-schema-placeholder' ).text()"
-				@update:selected="onChange"
+				@update:selected="onSchemaSelected"
 			/>
 			<template #label>
 				{{ $i18n( 'neowiki-layout-creator-schema-field' ).text() }}
@@ -38,16 +38,44 @@
 				{{ $i18n( 'neowiki-layout-creator-view-type-field' ).text() }}
 			</template>
 		</CdxField>
+
+		<div
+			v-if="selectedSchema"
+			class="ext-neowiki-layout-creator__display-rules"
+		>
+			<CdxToggleSwitch
+				v-model="showAllProperties"
+				@update:model-value="onShowAllToggled"
+			>
+				{{ $i18n( 'neowiki-layout-editor-show-all-properties' ).text() }}
+			</CdxToggleSwitch>
+
+			<CdxMessage
+				v-if="schemaFetchFailed && !showAllProperties"
+				type="error"
+				:inline="true"
+			>
+				{{ $i18n( 'neowiki-layout-editor-schema-fetch-error' ).text() }}
+			</CdxMessage>
+			<DisplayRuleList
+				v-else-if="!showAllProperties"
+				:schema-properties="schemaProperties"
+				:display-rules="currentDisplayRules"
+				@update:display-rules="onDisplayRulesChanged"
+			/>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
-import { CdxField, CdxTextInput, CdxSelect } from '@wikimedia/codex';
+import { computed, ref, shallowRef, onMounted } from 'vue';
+import { CdxField, CdxMessage, CdxSelect, CdxTextInput, CdxToggleSwitch } from '@wikimedia/codex';
 import type { MenuItemData, ValidationStatusType } from '@wikimedia/codex';
 import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
-import { Layout } from '@/domain/Layout.ts';
+import { Layout, type DisplayRule } from '@/domain/Layout.ts';
+import type { PropertyDefinition } from '@/domain/PropertyDefinition.ts';
+import DisplayRuleList from '@/components/LayoutEditor/DisplayRuleList.vue';
 import { useLayoutStore } from '@/stores/LayoutStore.ts';
 
 const emit = defineEmits<{
@@ -65,6 +93,10 @@ const nameInputRef = ref<InstanceType<typeof CdxTextInput> | null>( null );
 const selectedSchema = ref<string | null>( null );
 const selectedViewType = ref<string | null>( null );
 const schemaNames = ref<string[]>( [] );
+const schemaProperties = shallowRef<PropertyDefinition[]>( [] );
+const schemaFetchFailed = ref( false );
+const showAllProperties = ref( true );
+const currentDisplayRules = shallowRef<DisplayRule[]>( [] );
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let requestSequence = 0;
 
@@ -88,6 +120,36 @@ onMounted( async () => {
 } );
 
 function onChange(): void {
+	emit( 'change' );
+}
+
+async function onSchemaSelected(): Promise<void> {
+	schemaProperties.value = [];
+	schemaFetchFailed.value = false;
+	showAllProperties.value = true;
+	currentDisplayRules.value = [];
+	emit( 'change' );
+
+	if ( !selectedSchema.value ) {
+		return;
+	}
+
+	try {
+		const schemaRepo = NeoWikiServices.getSchemaRepository();
+		const schema = await schemaRepo.getSchema( selectedSchema.value );
+		schemaProperties.value = [ ...schema.getPropertyDefinitions() ];
+	} catch ( error ) {
+		console.error( 'Failed to fetch schema:', error );
+		schemaFetchFailed.value = true;
+	}
+}
+
+function onShowAllToggled(): void {
+	emit( 'change' );
+}
+
+function onDisplayRulesChanged( rules: DisplayRule[] ): void {
+	currentDisplayRules.value = rules;
 	emit( 'change' );
 }
 
@@ -171,7 +233,8 @@ function getLayout(): Layout | null {
 		return null;
 	}
 
-	return new Layout( name, selectedSchema.value, selectedViewType.value, '', [], {} );
+	const displayRules = showAllProperties.value ? [] : currentDisplayRules.value;
+	return new Layout( name, selectedSchema.value, selectedViewType.value, '', displayRules, {} );
 }
 
 function reset(): void {
@@ -182,6 +245,10 @@ function reset(): void {
 	nameStatus.value = 'default';
 	selectedSchema.value = null;
 	selectedViewType.value = null;
+	schemaProperties.value = [];
+	schemaFetchFailed.value = false;
+	showAllProperties.value = true;
+	currentDisplayRules.value = [];
 }
 
 export interface LayoutCreatorExposes {
@@ -204,6 +271,11 @@ defineExpose( { validate, getLayout, reset } );
 
 	@media ( min-width: @min-width-breakpoint-desktop ) {
 		padding: @spacing-150;
+	}
+
+	&__display-rules {
+		border-block-start: @border-subtle;
+		padding-block-start: @spacing-100;
 	}
 }
 </style>
