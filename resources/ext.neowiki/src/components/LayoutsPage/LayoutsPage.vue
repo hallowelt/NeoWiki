@@ -22,18 +22,8 @@
 				</CdxButton>
 			</template>
 
-			<template #item-name="{ item, row }">
-				<span class="ext-neowiki-layouts-page__name-cell">
-					<a :href="layoutUrl( item )">{{ item }}</a>
-					<CdxButton
-						v-if="canEditLayouts"
-						weight="quiet"
-						:aria-label="$i18n( 'neowiki-edit-layout' ).text()"
-						@click="openEditor( row.name )"
-					>
-						<CdxIcon :icon="cdxIconEdit" />
-					</CdxButton>
-				</span>
+			<template #item-name="{ item }">
+				<a :href="layoutUrl( item )">{{ item }}</a>
 			</template>
 
 			<template #item-description="{ item }">
@@ -51,15 +41,26 @@
 			</template>
 
 			<template #item-actions="{ row }">
-				<CdxButton
+				<span
 					v-if="canEditLayouts"
-					weight="quiet"
-					action="destructive"
-					:aria-label="$i18n( 'neowiki-layout-delete' ).text()"
-					@click="confirmDelete( row.name )"
+					class="ext-neowiki-layouts-page__actions"
 				>
-					<CdxIcon :icon="cdxIconTrash" />
-				</CdxButton>
+					<CdxButton
+						weight="quiet"
+						:aria-label="$i18n( 'neowiki-edit-layout' ).text()"
+						@click="openEditor( row.name )"
+					>
+						<CdxIcon :icon="cdxIconEdit" />
+					</CdxButton>
+					<CdxButton
+						weight="quiet"
+						action="destructive"
+						:aria-label="$i18n( 'neowiki-layout-delete' ).text()"
+						@click="confirmDelete( row.name )"
+					>
+						<CdxIcon :icon="cdxIconTrash" />
+					</CdxButton>
+				</span>
 			</template>
 
 			<template #empty-state>
@@ -299,9 +300,8 @@ onMounted( async () => {
 		user-select: none;
 	}
 
-	&__name-cell {
+	&__actions {
 		display: inline-flex;
-		align-items: center;
 		gap: @spacing-25;
 	}
 }
