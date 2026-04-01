@@ -1,18 +1,5 @@
 <template>
 	<div class="ext-neowiki-layout-editor">
-		<div class="ext-neowiki-layout-editor__description">
-			<CdxField :optional="true">
-				<template #label>
-					{{ $i18n( 'neowiki-layout-editor-description' ).text() }}
-				</template>
-				<CdxTextArea
-					:model-value="description"
-					:placeholder="$i18n( 'neowiki-layout-editor-description-placeholder' ).text()"
-					@update:model-value="onDescriptionChanged"
-				/>
-			</CdxField>
-		</div>
-
 		<div class="ext-neowiki-layout-editor__metadata">
 			<span class="ext-neowiki-layout-editor__metadata-item">
 				<span class="ext-neowiki-layout-editor__metadata-label">
@@ -26,6 +13,19 @@
 				</span>
 				{{ initialLayout.getType() }}
 			</span>
+		</div>
+
+		<div class="ext-neowiki-layout-editor__description">
+			<CdxField :optional="true">
+				<template #label>
+					{{ $i18n( 'neowiki-layout-editor-description' ).text() }}
+				</template>
+				<CdxTextArea
+					:model-value="description"
+					:placeholder="$i18n( 'neowiki-layout-editor-description-placeholder' ).text()"
+					@update:model-value="onDescriptionChanged"
+				/>
+			</CdxField>
 		</div>
 
 		<div class="ext-neowiki-layout-editor__display-rules">
