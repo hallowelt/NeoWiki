@@ -72,5 +72,17 @@
 	"neowiki-layout-display-rules-caption": "Caption for the display rules table in the layout display (hidden visually).",
 	"neowiki-layout-display-rule-property": "Column header for the property name in the display rules table.",
 	"neowiki-layout-display-rule-attributes": "Column header for display attributes in the display rules table.",
-	"neowiki-layout-display-no-rules": "Message shown when a layout has no display rules, meaning all schema properties are shown in their default order."
+	"neowiki-layout-display-no-rules": "Message shown when a layout has no display rules, meaning all schema properties are shown in their default order.",
+
+	"neowiki-editing-layout": "Title of the dialog for editing a layout. $1 is the layout name.",
+	"neowiki-save-layout": "Label for the save button in the layout editor dialog.",
+	"neowiki-edit-summary-help-text-layout": "Help text shown below the edit summary in the layout editor dialog.",
+	"neowiki-layout-editor-description": "Label for the description field in the layout editor.",
+	"neowiki-layout-editor-description-placeholder": "Placeholder text for the description field in the layout editor.",
+	"neowiki-layout-editor-schema": "Label for the read-only schema field in the layout editor.",
+	"neowiki-layout-editor-view-type": "Label for the read-only view type field in the layout editor.",
+	"neowiki-layout-editor-show-all-properties": "Label for the toggle that controls whether all properties are shown or specific ones are chosen.",
+	"neowiki-layout-editor-summary-default": "Default edit summary used when updating a layout via the UI.",
+	"neowiki-layout-editor-success": "Success notification shown after updating a layout. $1 is the layout name.",
+	"neowiki-layout-editor-error": "Error notification title shown when updating a layout fails. $1 is the layout name."
 }

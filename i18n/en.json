@@ -145,5 +145,17 @@
 	"neowiki-layout-display-rules-caption": "Display rules",
 	"neowiki-layout-display-rule-property": "Property",
 	"neowiki-layout-display-rule-attributes": "Display attributes",
-	"neowiki-layout-display-no-rules": "All properties shown in schema order"
+	"neowiki-layout-display-no-rules": "All properties shown in schema order",
+
+	"neowiki-editing-layout": "Editing $1 layout",
+	"neowiki-save-layout": "Save layout",
+	"neowiki-edit-summary-help-text-layout": "Changes affect all views using this Layout.",
+	"neowiki-layout-editor-description": "Description",
+	"neowiki-layout-editor-description-placeholder": "Enter a description for the layout",
+	"neowiki-layout-editor-schema": "Schema",
+	"neowiki-layout-editor-view-type": "View type",
+	"neowiki-layout-editor-show-all-properties": "Show all properties",
+	"neowiki-layout-editor-summary-default": "Update layout via NeoWiki UI",
+	"neowiki-layout-editor-success": "Updated $1 layout",
+	"neowiki-layout-editor-error": "Failed to update $1 layout."
 }

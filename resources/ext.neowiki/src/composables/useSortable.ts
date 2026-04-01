@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, Ref } from 'vue';
 
 export interface UseSortableOptions {
 	handle?: string;
+	ghostClass?: string;
 	onReorder: ( oldIndex: number, newIndex: number ) => void;
 }
 
@@ -17,7 +18,7 @@ export function useSortable( containerRef: Ref<HTMLElement | null>, options: Use
 		instance = Sortable.create( containerRef.value, {
 			handle: options.handle,
 			animation: 150,
-			ghostClass: 'ext-neowiki-property-list__item--ghost',
+			ghostClass: options.ghostClass ?? 'ext-neowiki-property-list__item--ghost',
 			onEnd: ( event ) => {
 				const { item, from, oldIndex, newIndex } = event;
 

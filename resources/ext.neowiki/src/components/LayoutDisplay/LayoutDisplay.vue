@@ -34,6 +34,15 @@
 		>
 			{{ $i18n( 'neowiki-layout-display-no-rules' ).text() }}
 		</p>
+
+		<LayoutEditorDialog
+			v-if="canEditLayout"
+			:open="isEditorOpen"
+			:initial-layout="currentLayout"
+			:on-save="handleSaveLayout"
+			@saved="onLayoutSaved"
+			@update:open="isEditorOpen = $event"
+		/>
 	</div>
 </template>
 
@@ -43,7 +52,9 @@ import { Layout } from '@/domain/Layout.ts';
 import { CdxTable } from '@wikimedia/codex';
 import type { TableColumn } from '@wikimedia/codex';
 import LayoutDisplayHeader from './LayoutDisplayHeader.vue';
+import LayoutEditorDialog from '@/components/LayoutEditor/LayoutEditorDialog.vue';
 import { useLayoutPermissions } from '@/composables/useLayoutPermissions.ts';
+import { useLayoutStore } from '@/stores/LayoutStore.ts';
 
 const props = defineProps( {
 	layout: {
@@ -86,6 +97,16 @@ const displayRuleRows = computed( () =>
 			: '-',
 	} ) ),
 );
+
+const layoutStore = useLayoutStore();
+
+const handleSaveLayout = async ( updatedLayout: Layout, comment: string ): Promise<void> => {
+	await layoutStore.saveLayout( updatedLayout, comment );
+};
+
+const onLayoutSaved = ( layout: Layout ): void => {
+	currentLayout.value = layout;
+};
 </script>
 
 <style lang="less">
