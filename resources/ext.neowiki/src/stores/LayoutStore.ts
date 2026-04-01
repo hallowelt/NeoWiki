@@ -23,5 +23,9 @@ export const useLayoutStore = defineStore( 'layout', {
 			}
 			return this.layouts.get( name ) as Layout;
 		},
+		async saveLayout( layout: Layout, comment?: string ): Promise<void> {
+			await NeoWikiExtension.getInstance().getLayoutRepository().saveLayout( layout, comment );
+			this.setLayout( layout.getName(), layout );
+		},
 	},
 } );

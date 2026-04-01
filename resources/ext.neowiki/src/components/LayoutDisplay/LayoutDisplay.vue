@@ -43,6 +43,7 @@ import { Layout } from '@/domain/Layout.ts';
 import { CdxTable } from '@wikimedia/codex';
 import type { TableColumn } from '@wikimedia/codex';
 import LayoutDisplayHeader from './LayoutDisplayHeader.vue';
+import { useLayoutPermissions } from '@/composables/useLayoutPermissions.ts';
 
 const props = defineProps( {
 	layout: {
@@ -53,10 +54,11 @@ const props = defineProps( {
 
 const isEditorOpen = shallowRef( false );
 const currentLayout = shallowRef<Layout>( props.layout );
-const canEditLayout = shallowRef( false );
+const { canEditLayout, checkEditPermission } = useLayoutPermissions();
 
 watch( () => props.layout, ( newLayout ) => {
 	currentLayout.value = newLayout;
+	checkEditPermission( newLayout.getName() );
 }, { immediate: true } );
 
 const schemaPageUrl = computed( () => {
