@@ -17,13 +17,13 @@
 
 			<template #item-property="{ item, row }">
 				<span class="ext-neowiki-layout-display__property-cell">
-					{{ item }}
-					<CdxInfoChip
+					<CdxIcon
 						v-if="row.type"
 						:icon="getIcon( row.type )"
-					>
-						{{ getTypeLabel( row.type ) }}
-					</CdxInfoChip>
+						:title="getTypeLabel( row.type )"
+						class="ext-neowiki-layout-display__type-icon"
+					/>
+					{{ item }}
 				</span>
 			</template>
 
@@ -57,7 +57,7 @@
 import { computed, shallowRef, watch } from 'vue';
 import { Layout } from '@/domain/Layout.ts';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
-import { CdxTable, CdxInfoChip } from '@wikimedia/codex';
+import { CdxIcon, CdxTable } from '@wikimedia/codex';
 import type { TableColumn } from '@wikimedia/codex';
 import type { Icon } from '@wikimedia/codex-icons';
 import LayoutDisplayHeader from './LayoutDisplayHeader.vue';
@@ -161,6 +161,10 @@ const onLayoutSaved = ( layout: Layout ): void => {
 		display: inline-flex;
 		align-items: center;
 		gap: @spacing-50;
+	}
+
+	&__type-icon {
+		color: @color-subtle;
 	}
 
 	&__empty-value {
