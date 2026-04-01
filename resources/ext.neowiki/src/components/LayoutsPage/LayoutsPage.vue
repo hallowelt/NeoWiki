@@ -22,8 +22,18 @@
 				</CdxButton>
 			</template>
 
-			<template #item-name="{ item }">
-				<a :href="layoutUrl( item )">{{ item }}</a>
+			<template #item-name="{ item, row }">
+				<span class="ext-neowiki-layouts-page__name-cell">
+					<a :href="layoutUrl( item )">{{ item }}</a>
+					<CdxButton
+						v-if="canEditLayouts"
+						weight="quiet"
+						:aria-label="$i18n( 'neowiki-edit-layout' ).text()"
+						@click="openEditor( row.name )"
+					>
+						<CdxIcon :icon="cdxIconEdit" />
+					</CdxButton>
+				</span>
 			</template>
 
 			<template #item-description="{ item }">
@@ -40,27 +50,66 @@
 				<a :href="schemaUrl( item )">{{ item }}</a>
 			</template>
 
+			<template #item-actions="{ row }">
+				<CdxButton
+					v-if="canEditLayouts"
+					weight="quiet"
+					action="destructive"
+					:aria-label="$i18n( 'neowiki-layout-delete' ).text()"
+					@click="confirmDelete( row.name )"
+				>
+					<CdxIcon :icon="cdxIconTrash" />
+				</CdxButton>
+			</template>
+
 			<template #empty-state>
 				{{ $i18n( 'neowiki-layouts-empty' ).text() }}
 			</template>
 		</CdxTable>
+
 		<LayoutCreatorDialog
 			v-if="canCreateLayouts"
 			:open="isCreatorOpen"
 			@update:open="isCreatorOpen = $event"
 			@created="fetchLayouts( 0, pageSize )"
 		/>
+
+		<LayoutEditorDialog
+			v-if="canEditLayouts && editingLayout !== null"
+			:open="isEditorOpen"
+			:initial-layout="editingLayout"
+			:on-save="handleSaveLayout"
+			@saved="onLayoutSaved"
+			@update:open="onEditorOpenChange"
+		/>
+
+		<CdxDialog
+			:open="isDeleteConfirmOpen"
+			:title="$i18n( 'neowiki-layout-delete-confirm-title' ).text()"
+			:use-close-button="true"
+			:stacked-actions="true"
+			:primary-action="deleteAction"
+			:default-action="cancelAction"
+			@update:open="isDeleteConfirmOpen = $event"
+			@primary="executeDelete"
+			@default="isDeleteConfirmOpen = false"
+		>
+			{{ $i18n( 'neowiki-layout-delete-confirm-message', deletingLayoutName ).text() }}
+		</CdxDialog>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { CdxButton, CdxIcon, CdxTable } from '@wikimedia/codex';
-import type { TableColumn } from '@wikimedia/codex';
-import { cdxIconAdd } from '@wikimedia/codex-icons';
+import { ref, shallowRef, onMounted } from 'vue';
+import { CdxButton, CdxDialog, CdxIcon, CdxTable } from '@wikimedia/codex';
+import type { TableColumn, PrimaryDialogAction, DialogAction } from '@wikimedia/codex';
+import { cdxIconAdd, cdxIconEdit, cdxIconTrash } from '@wikimedia/codex-icons';
 import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
 import { useLayoutPermissions } from '@/composables/useLayoutPermissions.ts';
+import { useLayoutStore } from '@/stores/LayoutStore.ts';
+import { Layout } from '@/domain/Layout.ts';
 import LayoutCreatorDialog from './LayoutCreatorDialog.vue';
+import LayoutEditorDialog from '@/components/LayoutEditor/LayoutEditorDialog.vue';
 
 const paginationSizeOptions: { value: number }[] = [
 	{ value: 10 },
@@ -72,7 +121,24 @@ const loading = ref( true );
 const totalRows = ref( 0 );
 const isCreatorOpen = ref( false );
 const pageSize = ref( paginationSizeOptions[ 0 ].value );
-const { canCreateLayouts, checkCreatePermission } = useLayoutPermissions();
+const lastOffset = ref( 0 );
+const { canCreateLayouts, canEditLayout: canEditLayouts, checkCreatePermission, checkEditPermission } = useLayoutPermissions();
+const layoutStore = useLayoutStore();
+
+const isEditorOpen = ref( false );
+const editingLayout = shallowRef<Layout | null>( null );
+
+const isDeleteConfirmOpen = ref( false );
+const deletingLayoutName = ref( '' );
+
+const deleteAction: PrimaryDialogAction = {
+	label: mw.msg( 'neowiki-layout-delete-confirm-delete' ),
+	actionType: 'destructive'
+};
+
+const cancelAction: DialogAction = {
+	label: mw.msg( 'neowiki-layout-delete-confirm-cancel' )
+};
 
 interface LayoutRow {
 	name: string;
@@ -99,6 +165,10 @@ const columns: TableColumn[] = [
 	{
 		id: 'description',
 		label: mw.msg( 'neowiki-layouts-column-description' )
+	},
+	{
+		id: 'actions',
+		label: ''
 	}
 ];
 
@@ -121,6 +191,7 @@ interface LayoutSummary {
 async function fetchLayouts( offset: number, limit: number ): Promise<void> {
 	loading.value = true;
 	pageSize.value = limit;
+	lastOffset.value = offset;
 
 	const restApiUrl = NeoWikiExtension.getInstance().getMediaWiki().util.wikiScript( 'rest' );
 	const httpClient = NeoWikiExtension.getInstance().newHttpClient();
@@ -151,8 +222,68 @@ function onLoadMore( offset: number, limit: number ): void {
 	fetchLayouts( offset, limit );
 }
 
+async function openEditor( layoutName: string ): Promise<void> {
+	try {
+		const layout = await layoutStore.getOrFetchLayout( layoutName );
+		editingLayout.value = layout;
+		isEditorOpen.value = true;
+	} catch ( error ) {
+		mw.notify(
+			error instanceof Error ? error.message : String( error ),
+			{ type: 'error' }
+		);
+	}
+}
+
+const handleSaveLayout = async ( updatedLayout: Layout, comment: string ): Promise<void> => {
+	await layoutStore.saveLayout( updatedLayout, comment );
+};
+
+function onLayoutSaved(): void {
+	fetchLayouts( lastOffset.value, pageSize.value );
+}
+
+function onEditorOpenChange( value: boolean ): void {
+	isEditorOpen.value = value;
+	if ( !value ) {
+		editingLayout.value = null;
+	}
+}
+
+function confirmDelete( layoutName: string ): void {
+	deletingLayoutName.value = layoutName;
+	isDeleteConfirmOpen.value = true;
+}
+
+async function executeDelete(): Promise<void> {
+	isDeleteConfirmOpen.value = false;
+	const name = deletingLayoutName.value;
+
+	try {
+		const api = new mw.Api();
+		const token = await api.getEditToken();
+		await api.post( {
+			action: 'delete',
+			title: `Layout:${ name }`,
+			reason: mw.msg( 'neowiki-layout-delete-summary-default' ),
+			token: token
+		} );
+		mw.notify( mw.msg( 'neowiki-layout-delete-success', name ), { type: 'success' } );
+		await fetchLayouts( lastOffset.value, pageSize.value );
+	} catch ( error ) {
+		mw.notify(
+			error instanceof Error ? error.message : String( error ),
+			{
+				title: mw.msg( 'neowiki-layout-delete-error', name ),
+				type: 'error'
+			}
+		);
+	}
+}
+
 onMounted( async () => {
 	await checkCreatePermission();
+	await checkEditPermission( '' );
 	await fetchLayouts( 0, paginationSizeOptions[ 0 ].value );
 } );
 </script>
@@ -166,6 +297,12 @@ onMounted( async () => {
 	&__empty-value {
 		color: @color-subtle;
 		user-select: none;
+	}
+
+	&__name-cell {
+		display: inline-flex;
+		align-items: center;
+		gap: @spacing-25;
 	}
 }
 </style>

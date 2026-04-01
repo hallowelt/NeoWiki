@@ -107,5 +107,14 @@
 	"neowiki-layout-creator-save": "Label for the save button in the layout creation dialog.",
 	"neowiki-layout-creator-success": "Success notification shown after creating a layout. $1 is the layout name.",
 	"neowiki-layout-creator-error": "Error notification title shown when creating a layout fails. $1 is the layout name.",
-	"neowiki-layout-creator-summary-default": "Default edit summary used when creating a layout via the UI."
+	"neowiki-layout-creator-summary-default": "Default edit summary used when creating a layout via the UI.",
+
+	"neowiki-layout-delete": "Aria label for the delete button on a Layout row in the layouts list.",
+	"neowiki-layout-delete-confirm-title": "Title of the confirmation dialog shown when deleting a layout.",
+	"neowiki-layout-delete-confirm-message": "Message in the delete confirmation dialog. $1 is the layout name.",
+	"neowiki-layout-delete-confirm-delete": "Label for the destructive button that confirms layout deletion.",
+	"neowiki-layout-delete-confirm-cancel": "Label for the button that cancels layout deletion.",
+	"neowiki-layout-delete-summary-default": "Default deletion reason used when deleting a layout via the UI.",
+	"neowiki-layout-delete-success": "Success notification shown after deleting a layout. $1 is the layout name.",
+	"neowiki-layout-delete-error": "Error notification title shown when deleting a layout fails. $1 is the layout name."
 }

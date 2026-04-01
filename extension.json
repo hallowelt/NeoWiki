@@ -384,7 +384,15 @@
 				"neowiki-layout-creator-save",
 				"neowiki-layout-creator-success",
 				"neowiki-layout-creator-error",
-				"neowiki-layout-creator-summary-default"
+				"neowiki-layout-creator-summary-default",
+				"neowiki-layout-delete",
+				"neowiki-layout-delete-confirm-title",
+				"neowiki-layout-delete-confirm-message",
+				"neowiki-layout-delete-confirm-delete",
+				"neowiki-layout-delete-confirm-cancel",
+				"neowiki-layout-delete-summary-default",
+				"neowiki-layout-delete-success",
+				"neowiki-layout-delete-error"
 			],
 			"@group:": "TODO: Load code separately while in development. Remove later.",
 			"group": "ext.neowiki"
