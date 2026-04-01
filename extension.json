@@ -364,6 +364,7 @@
 				"neowiki-layout-editor-summary-default",
 				"neowiki-layout-editor-success",
 				"neowiki-layout-editor-error",
+				"neowiki-layout-editor-schema-fetch-error",
 				"neowiki-special-layouts",
 				"neowiki-layouts-column-name",
 				"neowiki-layouts-column-schema",

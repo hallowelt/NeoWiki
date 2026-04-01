@@ -36,8 +36,15 @@
 				{{ $i18n( 'neowiki-layout-editor-show-all-properties' ).text() }}
 			</CdxToggleSwitch>
 
+			<CdxMessage
+				v-if="schemaFetchFailed && !showAllProperties"
+				type="error"
+				:inline="true"
+			>
+				{{ $i18n( 'neowiki-layout-editor-schema-fetch-error' ).text() }}
+			</CdxMessage>
 			<DisplayRuleList
-				v-if="!showAllProperties"
+				v-else-if="!showAllProperties"
 				:schema-properties="schemaProperties"
 				:display-rules="currentDisplayRules"
 				@update:display-rules="onDisplayRulesChanged"
@@ -50,7 +57,7 @@
 import { ref, shallowRef, onMounted } from 'vue';
 import { Layout, type DisplayRule } from '@/domain/Layout.ts';
 import type { PropertyDefinition } from '@/domain/PropertyDefinition.ts';
-import { CdxField, CdxTextArea, CdxToggleSwitch } from '@wikimedia/codex';
+import { CdxField, CdxMessage, CdxTextArea, CdxToggleSwitch } from '@wikimedia/codex';
 import DisplayRuleList from './DisplayRuleList.vue';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
 
@@ -65,7 +72,9 @@ const emit = defineEmits<{
 const description = ref( props.initialLayout.getDescription() );
 const showAllProperties = ref( props.initialLayout.getDisplayRules().length === 0 );
 const currentDisplayRules = shallowRef<DisplayRule[]>( [ ...props.initialLayout.getDisplayRules() ] );
+const savedDisplayRules = shallowRef<DisplayRule[]>( [ ...props.initialLayout.getDisplayRules() ] );
 const schemaProperties = shallowRef<PropertyDefinition[]>( [] );
+const schemaFetchFailed = ref( false );
 
 onMounted( async () => {
 	try {
@@ -74,6 +83,7 @@ onMounted( async () => {
 		schemaProperties.value = [ ...schema.getPropertyDefinitions() ];
 	} catch ( error ) {
 		console.error( 'Failed to fetch schema:', error );
+		schemaFetchFailed.value = true;
 	}
 } );
 
@@ -84,7 +94,10 @@ function onDescriptionChanged( value: string ): void {
 
 function onShowAllToggled(): void {
 	if ( showAllProperties.value ) {
+		savedDisplayRules.value = [ ...currentDisplayRules.value ];
 		currentDisplayRules.value = [];
+	} else {
+		currentDisplayRules.value = [ ...savedDisplayRules.value ];
 	}
 	emit( 'change' );
 }

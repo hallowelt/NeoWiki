@@ -158,6 +158,7 @@
 	"neowiki-layout-editor-summary-default": "Update layout via NeoWiki UI",
 	"neowiki-layout-editor-success": "Updated $1 layout",
 	"neowiki-layout-editor-error": "Failed to update $1 layout.",
+	"neowiki-layout-editor-schema-fetch-error": "Could not load schema properties.",
 
 	"neowiki-special-layouts": "Layouts",
 	"neowiki-layouts-column-name": "Name",

@@ -85,6 +85,7 @@
 	"neowiki-layout-editor-summary-default": "Default edit summary used when updating a layout via the UI.",
 	"neowiki-layout-editor-success": "Success notification shown after updating a layout. $1 is the layout name.",
 	"neowiki-layout-editor-error": "Error notification title shown when updating a layout fails. $1 is the layout name.",
+	"neowiki-layout-editor-schema-fetch-error": "Error message shown in the layout editor when the schema properties could not be loaded.",
 
 	"neowiki-special-layouts": "Title and description of the [[Special:Layouts]] page.",
 	"neowiki-layouts-column-name": "Column header for layout name in the layouts list table on [[Special:Layouts]].",
