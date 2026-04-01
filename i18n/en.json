@@ -137,5 +137,13 @@
 	"neowiki-schema-abandonment-keep-editing": "Keep editing",
 	"neowiki-schema-abandonment-save-schema": "Save schema only",
 
-	"neowiki-layout-invalid": "Layout content is invalid ({{PLURAL:$1|$1 error|$1 errors}}):"
+	"neowiki-layout-invalid": "Layout content is invalid ({{PLURAL:$1|$1 error|$1 errors}}):",
+
+	"neowiki-edit-layout": "Edit layout",
+	"neowiki-layout-display-schema": "Schema",
+	"neowiki-layout-display-view-type": "View type",
+	"neowiki-layout-display-rules-caption": "Display rules",
+	"neowiki-layout-display-rule-property": "Property",
+	"neowiki-layout-display-rule-attributes": "Display attributes",
+	"neowiki-layout-display-no-rules": "All properties shown in schema order"
 }

@@ -37,6 +37,8 @@ class NeoWikiHooks {
 			self::handleContentPage( $out );
 		} elseif ( self::isSchemaPage( $out ) && $out->isArticle() ) {
 			self::handleSchemaPage( $out );
+		} elseif ( self::isLayoutPage( $out ) && $out->isArticle() ) {
+			self::handleLayoutPage( $out );
 		}
 	}
 
@@ -248,6 +250,24 @@ class NeoWikiHooks {
 
 	private static function isSchemaPage( OutputPage $out ): bool {
 		return $out->getTitle()->getNamespace() === NeoWikiExtension::NS_SCHEMA;
+	}
+
+	private static function isLayoutPage( OutputPage $out ): bool {
+		return $out->getTitle()->getNamespace() === NeoWikiExtension::NS_LAYOUT;
+	}
+
+	private static function handleLayoutPage( OutputPage $out ): void {
+		$out->addModules( 'ext.neowiki' );
+		$out->addModuleStyles( 'ext.neowiki.styles' );
+
+		$out->addHTML(
+			Html::element(
+				'div',
+				[
+					'id' => 'ext-neowiki-view-layout',
+				]
+			)
+		);
 	}
 
 }

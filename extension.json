@@ -339,7 +339,14 @@
 				"neowiki-schema-abandonment-message",
 				"neowiki-schema-abandonment-abandon",
 				"neowiki-schema-abandonment-keep-editing",
-				"neowiki-schema-abandonment-save-schema"
+				"neowiki-schema-abandonment-save-schema",
+				"neowiki-edit-layout",
+				"neowiki-layout-display-schema",
+				"neowiki-layout-display-view-type",
+				"neowiki-layout-display-rules-caption",
+				"neowiki-layout-display-rule-property",
+				"neowiki-layout-display-rule-attributes",
+				"neowiki-layout-display-no-rules"
 			],
 			"@group:": "TODO: Load code separately while in development. Remove later.",
 			"group": "ext.neowiki"

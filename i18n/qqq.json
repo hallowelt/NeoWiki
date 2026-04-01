@@ -64,5 +64,13 @@
 	"neowiki-schema-abandonment-keep-editing": "Label for the button that returns to editing the subject.",
 	"neowiki-schema-abandonment-save-schema": "Label for the quiet button that saves only the schema and discards the subject.",
 
-	"neowiki-layout-invalid": "Error message shown when saving an invalid Layout. Parameters:\n* $1 - number of validation errors"
+	"neowiki-layout-invalid": "Error message shown when saving an invalid Layout. Parameters:\n* $1 - number of validation errors",
+
+	"neowiki-edit-layout": "Aria label for the edit button on a Layout page.",
+	"neowiki-layout-display-schema": "Label for the schema field in the layout display.",
+	"neowiki-layout-display-view-type": "Label for the view type field in the layout display.",
+	"neowiki-layout-display-rules-caption": "Caption for the display rules table in the layout display (hidden visually).",
+	"neowiki-layout-display-rule-property": "Column header for the property name in the display rules table.",
+	"neowiki-layout-display-rule-attributes": "Column header for display attributes in the display rules table.",
+	"neowiki-layout-display-no-rules": "Message shown when a layout has no display rules, meaning all schema properties are shown in their default order."
 }
