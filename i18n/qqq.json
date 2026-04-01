@@ -84,6 +84,8 @@
 	"neowiki-layout-editor-schema": "Label for the read-only schema field in the layout editor.",
 	"neowiki-layout-editor-view-type": "Label for the read-only view type field in the layout editor.",
 	"neowiki-layout-editor-show-all-properties": "Label for the toggle that controls whether all properties are shown or specific ones are chosen.",
+	"neowiki-layout-editor-shown-properties": "Section header for the list of shown properties in the display rule editor. $1 is the count.",
+	"neowiki-layout-editor-hidden-properties": "Section header for the list of hidden properties in the display rule editor. $1 is the count.",
 	"neowiki-layout-editor-summary-default": "Default edit summary used when updating a layout via the UI.",
 	"neowiki-layout-editor-success": "Success notification shown after updating a layout. $1 is the layout name.",
 	"neowiki-layout-editor-error": "Error notification title shown when updating a layout fails. $1 is the layout name.",

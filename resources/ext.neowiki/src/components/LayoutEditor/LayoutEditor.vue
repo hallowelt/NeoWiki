@@ -14,18 +14,18 @@
 		</div>
 
 		<div class="ext-neowiki-layout-editor__metadata">
-			<CdxField>
-				<template #label>
+			<span class="ext-neowiki-layout-editor__metadata-item">
+				<span class="ext-neowiki-layout-editor__metadata-label">
 					{{ $i18n( 'neowiki-layout-editor-schema' ).text() }}
-				</template>
-				<span>{{ initialLayout.getSchema() }}</span>
-			</CdxField>
-			<CdxField>
-				<template #label>
+				</span>
+				{{ initialLayout.getSchema() }}
+			</span>
+			<span class="ext-neowiki-layout-editor__metadata-item">
+				<span class="ext-neowiki-layout-editor__metadata-label">
 					{{ $i18n( 'neowiki-layout-editor-view-type' ).text() }}
-				</template>
-				<span>{{ initialLayout.getType() }}</span>
-			</CdxField>
+				</span>
+				{{ initialLayout.getType() }}
+			</span>
 		</div>
 
 		<div class="ext-neowiki-layout-editor__display-rules">
@@ -152,7 +152,16 @@ defineExpose( {
 	&__metadata {
 		display: flex;
 		gap: @spacing-200;
-		margin-block-end: @spacing-150;
+		margin-block-end: @spacing-100;
+	}
+
+	&__metadata-item {
+		display: inline-flex;
+		gap: @spacing-50;
+	}
+
+	&__metadata-label {
+		color: @color-subtle;
 	}
 
 	&__display-rules {
