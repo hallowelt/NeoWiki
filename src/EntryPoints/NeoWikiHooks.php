@@ -269,7 +269,7 @@ class NeoWikiHooks {
 			array_unshift(
 				$sidebar['TOOLBOX'],
 				[
-					'text' => wfMessage( 'neowiki-special-layouts' )->text(),
+					'text' => wfMessage( 'neowiki-layout-sidebar-all-layouts' )->text(),
 					'href' => SpecialPage::getTitleFor( 'Layouts' )->getLocalURL(),
 					'id' => 't-neowiki-layouts',
 				]

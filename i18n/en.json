@@ -147,6 +147,7 @@
 	"neowiki-layout-display-rule-type": "Type",
 	"neowiki-layout-display-rule-attributes": "Display attributes",
 	"neowiki-layout-display-no-rules": "All properties shown in schema order",
+	"neowiki-layout-sidebar-all-layouts": "All layouts",
 
 	"neowiki-editing-layout": "Editing $1 layout",
 	"neowiki-save-layout": "Save layout",
