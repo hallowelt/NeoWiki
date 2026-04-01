@@ -6,6 +6,7 @@ import { NeoWikiServices } from '@/NeoWikiServices.ts';
 import SchemaDisplay from '@/components/SchemaDisplay/SchemaDisplay.vue';
 import LayoutDisplay from '@/components/LayoutDisplay/LayoutDisplay.vue';
 import SchemasPage from '@/components/SchemasPage/SchemasPage.vue';
+import LayoutsPage from '@/components/LayoutsPage/LayoutsPage.vue';
 import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
 import { SchemaName } from '@/domain/Schema.ts';
 import type { LayoutName } from '@/domain/Layout.ts';
@@ -99,7 +100,19 @@ async function initializeLayoutView(): Promise<void> {
 	}
 }
 
+function initializeLayoutsPage(): void {
+	const layoutsPage = document.getElementById( 'ext-neowiki-layouts' );
+
+	if ( layoutsPage !== null ) {
+		const app = createMwApp( LayoutsPage );
+		app.use( createPinia() );
+		NeoWikiServices.registerServices( app );
+		app.mount( layoutsPage );
+	}
+}
+
 initializeNeoWikiApp();
 initializeSchemaView();
 initializeLayoutView();
 initializeSchemasPage();
+initializeLayoutsPage();

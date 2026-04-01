@@ -157,5 +157,12 @@
 	"neowiki-layout-editor-show-all-properties": "Show all properties",
 	"neowiki-layout-editor-summary-default": "Update layout via NeoWiki UI",
 	"neowiki-layout-editor-success": "Updated $1 layout",
-	"neowiki-layout-editor-error": "Failed to update $1 layout."
+	"neowiki-layout-editor-error": "Failed to update $1 layout.",
+
+	"neowiki-special-layouts": "Layouts",
+	"neowiki-layouts-column-name": "Name",
+	"neowiki-layouts-column-schema": "Schema",
+	"neowiki-layouts-column-type": "View type",
+	"neowiki-layouts-column-description": "Description",
+	"neowiki-layouts-empty": "No layouts have been created yet."
 }

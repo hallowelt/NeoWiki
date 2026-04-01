@@ -84,5 +84,12 @@
 	"neowiki-layout-editor-show-all-properties": "Label for the toggle that controls whether all properties are shown or specific ones are chosen.",
 	"neowiki-layout-editor-summary-default": "Default edit summary used when updating a layout via the UI.",
 	"neowiki-layout-editor-success": "Success notification shown after updating a layout. $1 is the layout name.",
-	"neowiki-layout-editor-error": "Error notification title shown when updating a layout fails. $1 is the layout name."
+	"neowiki-layout-editor-error": "Error notification title shown when updating a layout fails. $1 is the layout name.",
+
+	"neowiki-special-layouts": "Title and description of the [[Special:Layouts]] page.",
+	"neowiki-layouts-column-name": "Column header for layout name in the layouts list table on [[Special:Layouts]].",
+	"neowiki-layouts-column-schema": "Column header for the schema name in the layouts list table on [[Special:Layouts]].",
+	"neowiki-layouts-column-type": "Column header for the view type in the layouts list table on [[Special:Layouts]].",
+	"neowiki-layouts-column-description": "Column header for layout description in the layouts list table on [[Special:Layouts]].",
+	"neowiki-layouts-empty": "Message shown when no layouts exist yet on [[Special:Layouts]]."
 }

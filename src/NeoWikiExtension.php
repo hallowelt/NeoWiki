@@ -48,6 +48,7 @@ use ProfessionalWiki\NeoWiki\EntryPoints\REST\CreateSubjectApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\DeleteSubjectApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetSchemaApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetLayoutApi;
+use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetLayoutSummariesApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetSchemaNamesApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetSchemaSummariesApi;
 use ProfessionalWiki\NeoWiki\EntryPoints\REST\GetSubjectLabelsApi;
@@ -74,6 +75,8 @@ use ProfessionalWiki\NeoWiki\Persistence\Neo4j\Neo4jSubjectLabelLookup;
 use ProfessionalWiki\NeoWiki\Persistence\Neo4j\Neo4jValueBuilderRegistry;
 use ProfessionalWiki\NeoWiki\Persistence\Neo4j\SubjectUpdaterFactory;
 use ProfessionalWiki\NeoWiki\Persistence\SchemaNameLookup;
+use ProfessionalWiki\NeoWiki\Persistence\LayoutNameLookup;
+use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\DatabaseLayoutNameLookup;
 use ProfessionalWiki\NeoWiki\Presentation\CsrfValidator;
 use ProfessionalWiki\NeoWiki\Presentation\FactBox;
 use ProfessionalWiki\NeoWiki\Presentation\RestGetSubjectPresenter;
@@ -484,6 +487,16 @@ class NeoWikiExtension {
 
 	public static function newGetSchemaSummariesApi(): GetSchemaSummariesApi {
 		return new GetSchemaSummariesApi();
+	}
+
+	public function getLayoutNameLookup(): LayoutNameLookup {
+		return new DatabaseLayoutNameLookup(
+			db: $this->getDbConnection(),
+		);
+	}
+
+	public static function newGetLayoutSummariesApi(): GetLayoutSummariesApi {
+		return new GetLayoutSummariesApi();
 	}
 
 	public static function newGetSubjectLabelsApi(): GetSubjectLabelsApi {

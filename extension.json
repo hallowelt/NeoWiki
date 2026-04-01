@@ -110,7 +110,8 @@
 
 	"SpecialPages": {
 		"NeoJson": "ProfessionalWiki\\NeoWiki\\EntryPoints\\SpecialPages\\SpecialNeoJson",
-		"Schemas": "ProfessionalWiki\\NeoWiki\\EntryPoints\\SpecialPages\\SpecialSchemas"
+		"Schemas": "ProfessionalWiki\\NeoWiki\\EntryPoints\\SpecialPages\\SpecialSchemas",
+		"Layouts": "ProfessionalWiki\\NeoWiki\\EntryPoints\\SpecialPages\\SpecialLayouts"
 	},
 
 	"config": {
@@ -161,6 +162,11 @@
 			"path": "/neowiki/v0/layout/{layoutName}",
 			"method": [ "GET" ],
 			"factory": "ProfessionalWiki\\NeoWiki\\NeoWikiExtension::newGetLayoutApi"
+		},
+		{
+			"path": "/neowiki/v0/layouts",
+			"method": [ "GET" ],
+			"factory": "ProfessionalWiki\\NeoWiki\\NeoWikiExtension::newGetLayoutSummariesApi"
 		},
 		{
 			"path": "/neowiki/v0/schema-names/{search}",
@@ -357,7 +363,13 @@
 				"neowiki-layout-editor-show-all-properties",
 				"neowiki-layout-editor-summary-default",
 				"neowiki-layout-editor-success",
-				"neowiki-layout-editor-error"
+				"neowiki-layout-editor-error",
+				"neowiki-special-layouts",
+				"neowiki-layouts-column-name",
+				"neowiki-layouts-column-schema",
+				"neowiki-layouts-column-type",
+				"neowiki-layouts-column-description",
+				"neowiki-layouts-empty"
 			],
 			"@group:": "TODO: Load code separately while in development. Remove later.",
 			"group": "ext.neowiki"
