@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, onMounted } from 'vue';
+import { ref, shallowRef, watch } from 'vue';
 import { Layout, type DisplayRule } from '@/domain/Layout.ts';
 import type { PropertyDefinition } from '@/domain/PropertyDefinition.ts';
 import { CdxField, CdxMessage, CdxTextArea, CdxToggleSwitch } from '@wikimedia/codex';
@@ -69,6 +69,8 @@ const emit = defineEmits<{
 	change: [];
 }>();
 
+const schemaRepo = NeoWikiServices.getSchemaRepository();
+
 const description = ref( props.initialLayout.getDescription() );
 const showAllProperties = ref( props.initialLayout.getDisplayRules().length === 0 );
 const currentDisplayRules = shallowRef<DisplayRule[]>( [ ...props.initialLayout.getDisplayRules() ] );
@@ -76,16 +78,24 @@ const savedDisplayRules = shallowRef<DisplayRule[]>( [ ...props.initialLayout.ge
 const schemaProperties = shallowRef<PropertyDefinition[]>( [] );
 const schemaFetchFailed = ref( false );
 
-onMounted( async () => {
+async function fetchSchemaProperties( schemaName: string ): Promise<void> {
+	schemaFetchFailed.value = false;
 	try {
-		const schemaRepo = NeoWikiServices.getSchemaRepository();
-		const schema = await schemaRepo.getSchema( props.initialLayout.getSchema() );
+		const schema = await schemaRepo.getSchema( schemaName );
 		schemaProperties.value = [ ...schema.getPropertyDefinitions() ];
 	} catch ( error ) {
 		console.error( 'Failed to fetch schema:', error );
 		schemaFetchFailed.value = true;
 	}
-} );
+}
+
+watch( () => props.initialLayout, ( layout ) => {
+	description.value = layout.getDescription();
+	showAllProperties.value = layout.getDisplayRules().length === 0;
+	currentDisplayRules.value = [ ...layout.getDisplayRules() ];
+	savedDisplayRules.value = [ ...layout.getDisplayRules() ];
+	fetchSchemaProperties( layout.getSchema() );
+}, { immediate: true } );
 
 function onDescriptionChanged( value: string ): void {
 	description.value = value;

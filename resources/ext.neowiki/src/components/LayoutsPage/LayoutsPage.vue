@@ -107,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, onMounted } from 'vue';
+import { ref, shallowRef, onMounted, nextTick } from 'vue';
 import { CdxButton, CdxDialog, CdxIcon, CdxTable } from '@wikimedia/codex';
 import type { TableColumn } from '@wikimedia/codex';
 import { cdxIconAdd, cdxIconEdit, cdxIconTrash } from '@wikimedia/codex-icons';
@@ -224,8 +224,14 @@ function onLoadMore( offset: number, limit: number ): void {
 
 async function openEditor( layoutName: string ): Promise<void> {
 	try {
-		const layout = await layoutStore.getOrFetchLayout( layoutName );
-		editingLayout.value = layout;
+		editingLayout.value = null;
+		await nextTick();
+
+		await Promise.all( [
+			layoutStore.fetchLayout( layoutName ),
+			fetchLayouts( lastOffset.value, pageSize.value )
+		] );
+		editingLayout.value = layoutStore.getLayout( layoutName ) ?? null;
 		isEditorOpen.value = true;
 	} catch ( error ) {
 		mw.notify(
