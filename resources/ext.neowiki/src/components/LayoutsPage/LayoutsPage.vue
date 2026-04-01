@@ -12,6 +12,16 @@
 			:pagination-size-options="paginationSizeOptions"
 			@load-more="onLoadMore"
 		>
+			<template #header>
+				<CdxButton
+					v-if="canCreateLayouts"
+					@click="isCreatorOpen = true"
+				>
+					<CdxIcon :icon="cdxIconAdd" />
+					{{ $i18n( 'neowiki-layout-creator-button' ).text() }}
+				</CdxButton>
+			</template>
+
 			<template #item-name="{ item }">
 				<a :href="layoutUrl( item )">{{ item }}</a>
 			</template>
@@ -34,14 +44,23 @@
 				{{ $i18n( 'neowiki-layouts-empty' ).text() }}
 			</template>
 		</CdxTable>
+		<LayoutCreatorDialog
+			v-if="canCreateLayouts"
+			:open="isCreatorOpen"
+			@update:open="isCreatorOpen = $event"
+			@created="fetchLayouts( 0, pageSize )"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { CdxTable } from '@wikimedia/codex';
+import { CdxButton, CdxIcon, CdxTable } from '@wikimedia/codex';
 import type { TableColumn } from '@wikimedia/codex';
+import { cdxIconAdd } from '@wikimedia/codex-icons';
 import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
+import { useLayoutPermissions } from '@/composables/useLayoutPermissions.ts';
+import LayoutCreatorDialog from './LayoutCreatorDialog.vue';
 
 const paginationSizeOptions: { value: number }[] = [
 	{ value: 10 },
@@ -51,6 +70,9 @@ const paginationSizeOptions: { value: number }[] = [
 
 const loading = ref( true );
 const totalRows = ref( 0 );
+const isCreatorOpen = ref( false );
+const pageSize = ref( paginationSizeOptions[ 0 ].value );
+const { canCreateLayouts, checkCreatePermission } = useLayoutPermissions();
 
 interface LayoutRow {
 	name: string;
@@ -98,6 +120,7 @@ interface LayoutSummary {
 
 async function fetchLayouts( offset: number, limit: number ): Promise<void> {
 	loading.value = true;
+	pageSize.value = limit;
 
 	const restApiUrl = NeoWikiExtension.getInstance().getMediaWiki().util.wikiScript( 'rest' );
 	const httpClient = NeoWikiExtension.getInstance().newHttpClient();
@@ -129,6 +152,7 @@ function onLoadMore( offset: number, limit: number ): void {
 }
 
 onMounted( async () => {
+	await checkCreatePermission();
 	await fetchLayouts( 0, paginationSizeOptions[ 0 ].value );
 } );
 </script>

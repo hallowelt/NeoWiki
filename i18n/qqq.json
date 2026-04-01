@@ -92,5 +92,20 @@
 	"neowiki-layouts-column-schema": "Column header for the schema name in the layouts list table on [[Special:Layouts]].",
 	"neowiki-layouts-column-type": "Column header for the view type in the layouts list table on [[Special:Layouts]].",
 	"neowiki-layouts-column-description": "Column header for layout description in the layouts list table on [[Special:Layouts]].",
-	"neowiki-layouts-empty": "Message shown when no layouts exist yet on [[Special:Layouts]]."
+	"neowiki-layouts-empty": "Message shown when no layouts exist yet on [[Special:Layouts]].",
+
+	"neowiki-layout-creator-title": "Title of the dialog for creating a new layout.",
+	"neowiki-layout-creator-button": "Label for the button that opens the layout creation dialog on [[Special:Layouts]].",
+	"neowiki-layout-creator-name-field": "Label for the layout name input field in the layout creation dialog.",
+	"neowiki-layout-creator-name-placeholder": "Placeholder text for the layout name input field in the layout creation dialog.",
+	"neowiki-layout-creator-name-required": "Error shown when the layout name field is empty in the layout creation dialog.",
+	"neowiki-layout-creator-name-taken": "Error shown when a layout with the entered name already exists in the layout creation dialog.",
+	"neowiki-layout-creator-schema-field": "Label for the schema selector in the layout creation dialog.",
+	"neowiki-layout-creator-schema-placeholder": "Placeholder text for the schema selector in the layout creation dialog.",
+	"neowiki-layout-creator-view-type-field": "Label for the view type selector in the layout creation dialog.",
+	"neowiki-layout-creator-view-type-placeholder": "Placeholder text for the view type selector in the layout creation dialog.",
+	"neowiki-layout-creator-save": "Label for the save button in the layout creation dialog.",
+	"neowiki-layout-creator-success": "Success notification shown after creating a layout. $1 is the layout name.",
+	"neowiki-layout-creator-error": "Error notification title shown when creating a layout fails. $1 is the layout name.",
+	"neowiki-layout-creator-summary-default": "Default edit summary used when creating a layout via the UI."
 }

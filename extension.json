@@ -370,7 +370,21 @@
 				"neowiki-layouts-column-schema",
 				"neowiki-layouts-column-type",
 				"neowiki-layouts-column-description",
-				"neowiki-layouts-empty"
+				"neowiki-layouts-empty",
+				"neowiki-layout-creator-title",
+				"neowiki-layout-creator-button",
+				"neowiki-layout-creator-name-field",
+				"neowiki-layout-creator-name-placeholder",
+				"neowiki-layout-creator-name-required",
+				"neowiki-layout-creator-name-taken",
+				"neowiki-layout-creator-schema-field",
+				"neowiki-layout-creator-schema-placeholder",
+				"neowiki-layout-creator-view-type-field",
+				"neowiki-layout-creator-view-type-placeholder",
+				"neowiki-layout-creator-save",
+				"neowiki-layout-creator-success",
+				"neowiki-layout-creator-error",
+				"neowiki-layout-creator-summary-default"
 			],
 			"@group:": "TODO: Load code separately while in development. Remove later.",
 			"group": "ext.neowiki"
