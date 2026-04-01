@@ -43,22 +43,15 @@
 			v-if="selectedSchema"
 			class="ext-neowiki-layout-creator__display-rules"
 		>
-			<CdxToggleSwitch
-				v-model="showAllProperties"
-				@update:model-value="onShowAllToggled"
-			>
-				{{ $i18n( 'neowiki-layout-editor-show-all-properties' ).text() }}
-			</CdxToggleSwitch>
-
 			<CdxMessage
-				v-if="schemaFetchFailed && !showAllProperties"
+				v-if="schemaFetchFailed"
 				type="error"
 				:inline="true"
 			>
 				{{ $i18n( 'neowiki-layout-editor-schema-fetch-error' ).text() }}
 			</CdxMessage>
 			<DisplayRuleList
-				v-else-if="!showAllProperties"
+				v-else
 				:schema-properties="schemaProperties"
 				:display-rules="currentDisplayRules"
 				@update:display-rules="onDisplayRulesChanged"
@@ -69,7 +62,7 @@
 
 <script setup lang="ts">
 import { computed, ref, shallowRef, onMounted } from 'vue';
-import { CdxField, CdxMessage, CdxSelect, CdxTextInput, CdxToggleSwitch } from '@wikimedia/codex';
+import { CdxField, CdxMessage, CdxSelect, CdxTextInput } from '@wikimedia/codex';
 import type { MenuItemData, ValidationStatusType } from '@wikimedia/codex';
 import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
@@ -95,7 +88,6 @@ const selectedViewType = ref<string | null>( null );
 const schemaNames = ref<string[]>( [] );
 const schemaProperties = shallowRef<PropertyDefinition[]>( [] );
 const schemaFetchFailed = ref( false );
-const showAllProperties = ref( true );
 const currentDisplayRules = shallowRef<DisplayRule[]>( [] );
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let requestSequence = 0;
@@ -126,7 +118,7 @@ function onChange(): void {
 async function onSchemaSelected(): Promise<void> {
 	schemaProperties.value = [];
 	schemaFetchFailed.value = false;
-	showAllProperties.value = true;
+
 	currentDisplayRules.value = [];
 	emit( 'change' );
 
@@ -142,10 +134,6 @@ async function onSchemaSelected(): Promise<void> {
 		console.error( 'Failed to fetch schema:', error );
 		schemaFetchFailed.value = true;
 	}
-}
-
-function onShowAllToggled(): void {
-	emit( 'change' );
 }
 
 function onDisplayRulesChanged( rules: DisplayRule[] ): void {
@@ -233,7 +221,7 @@ function getLayout(): Layout | null {
 		return null;
 	}
 
-	const displayRules = showAllProperties.value ? [] : currentDisplayRules.value;
+	const displayRules = [ ...currentDisplayRules.value ];
 	return new Layout( name, selectedSchema.value, selectedViewType.value, '', displayRules, {} );
 }
 
@@ -247,7 +235,7 @@ function reset(): void {
 	selectedViewType.value = null;
 	schemaProperties.value = [];
 	schemaFetchFailed.value = false;
-	showAllProperties.value = true;
+
 	currentDisplayRules.value = [];
 }
 

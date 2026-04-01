@@ -29,22 +29,15 @@
 		</div>
 
 		<div class="ext-neowiki-layout-editor__display-rules">
-			<CdxToggleSwitch
-				v-model="showAllProperties"
-				@update:model-value="onShowAllToggled"
-			>
-				{{ $i18n( 'neowiki-layout-editor-show-all-properties' ).text() }}
-			</CdxToggleSwitch>
-
 			<CdxMessage
-				v-if="schemaFetchFailed && !showAllProperties"
+				v-if="schemaFetchFailed"
 				type="error"
 				:inline="true"
 			>
 				{{ $i18n( 'neowiki-layout-editor-schema-fetch-error' ).text() }}
 			</CdxMessage>
 			<DisplayRuleList
-				v-else-if="!showAllProperties"
+				v-else
 				:schema-properties="schemaProperties"
 				:display-rules="currentDisplayRules"
 				@update:display-rules="onDisplayRulesChanged"
@@ -57,7 +50,7 @@
 import { ref, shallowRef, watch } from 'vue';
 import { Layout, type DisplayRule } from '@/domain/Layout.ts';
 import type { PropertyDefinition } from '@/domain/PropertyDefinition.ts';
-import { CdxField, CdxMessage, CdxTextArea, CdxToggleSwitch } from '@wikimedia/codex';
+import { CdxField, CdxMessage, CdxTextArea } from '@wikimedia/codex';
 import DisplayRuleList from './DisplayRuleList.vue';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
 
@@ -72,9 +65,7 @@ const emit = defineEmits<{
 const schemaRepo = NeoWikiServices.getSchemaRepository();
 
 const description = ref( props.initialLayout.getDescription() );
-const showAllProperties = ref( props.initialLayout.getDisplayRules().length === 0 );
 const currentDisplayRules = shallowRef<DisplayRule[]>( [ ...props.initialLayout.getDisplayRules() ] );
-const savedDisplayRules = shallowRef<DisplayRule[]>( [ ...props.initialLayout.getDisplayRules() ] );
 const schemaProperties = shallowRef<PropertyDefinition[]>( [] );
 const schemaFetchFailed = ref( false );
 
@@ -91,24 +82,12 @@ async function fetchSchemaProperties( schemaName: string ): Promise<void> {
 
 watch( () => props.initialLayout, ( layout ) => {
 	description.value = layout.getDescription();
-	showAllProperties.value = layout.getDisplayRules().length === 0;
 	currentDisplayRules.value = [ ...layout.getDisplayRules() ];
-	savedDisplayRules.value = [ ...layout.getDisplayRules() ];
 	fetchSchemaProperties( layout.getSchema() );
 }, { immediate: true } );
 
 function onDescriptionChanged( value: string ): void {
 	description.value = value;
-	emit( 'change' );
-}
-
-function onShowAllToggled(): void {
-	if ( showAllProperties.value ) {
-		savedDisplayRules.value = [ ...currentDisplayRules.value ];
-		currentDisplayRules.value = [];
-	} else {
-		currentDisplayRules.value = [ ...savedDisplayRules.value ];
-	}
 	emit( 'change' );
 }
 
@@ -128,7 +107,7 @@ defineExpose( {
 			props.initialLayout.getSchema(),
 			props.initialLayout.getType(),
 			description.value,
-			showAllProperties.value ? [] : currentDisplayRules.value,
+			currentDisplayRules.value,
 			props.initialLayout.getSettings()
 		);
 	}

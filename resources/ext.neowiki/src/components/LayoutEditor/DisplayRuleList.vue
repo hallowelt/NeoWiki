@@ -11,7 +11,7 @@
 				v-for="property in enabledProperties"
 				:key="property.name.toString()"
 				class="ext-neowiki-display-rule-list__item ext-neowiki-display-rule-list__item--enabled"
-				@click="onItemClick( property.name.toString(), false, $event )"
+				@click="onHide( property.name.toString() )"
 			>
 				<CdxIcon
 					v-if="getPropertyType( property )"
@@ -19,13 +19,9 @@
 					:title="getTypeLabel( getPropertyType( property )! )"
 					class="ext-neowiki-display-rule-list__item__type-icon"
 				/>
-				<CdxToggleSwitch
-					:model-value="true"
-					class="ext-neowiki-display-rule-list__item__toggle"
-					@update:model-value="onToggle( property.name.toString(), false )"
-				>
+				<span class="ext-neowiki-display-rule-list__item__name">
 					{{ property.name.toString() }}
-				</CdxToggleSwitch>
+				</span>
 				<span class="ext-neowiki-display-rule-list__item__drag-handle">
 					<CdxIcon
 						:icon="cdxIconDraggable"
@@ -34,22 +30,28 @@
 				</span>
 			</li>
 		</ul>
+		<p
+			v-if="enabledCount === 0"
+			class="ext-neowiki-display-rule-list__empty"
+		>
+			{{ $i18n( 'neowiki-layout-display-no-rules' ).text() }}
+		</p>
 
 		<div
-			v-if="disabledProperties.length > 0"
+			v-if="disabledCount > 0"
 			class="ext-neowiki-display-rule-list__section-header"
 		>
 			{{ $i18n( 'neowiki-layout-editor-hidden-properties', disabledCount ).text() }}
 		</div>
 		<ul
-			v-if="disabledProperties.length > 0"
+			v-if="disabledCount > 0"
 			class="ext-neowiki-display-rule-list__items"
 		>
 			<li
 				v-for="property in disabledProperties"
 				:key="property.name.toString()"
 				class="ext-neowiki-display-rule-list__item"
-				@click="onItemClick( property.name.toString(), true, $event )"
+				@click="onShow( property.name.toString() )"
 			>
 				<CdxIcon
 					v-if="getPropertyType( property )"
@@ -57,13 +59,9 @@
 					:title="getTypeLabel( getPropertyType( property )! )"
 					class="ext-neowiki-display-rule-list__item__type-icon"
 				/>
-				<CdxToggleSwitch
-					:model-value="false"
-					class="ext-neowiki-display-rule-list__item__toggle"
-					@update:model-value="onToggle( property.name.toString(), true )"
-				>
+				<span class="ext-neowiki-display-rule-list__item__name">
 					{{ property.name.toString() }}
-				</CdxToggleSwitch>
+				</span>
 			</li>
 		</ul>
 	</div>
@@ -71,7 +69,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { CdxToggleSwitch, CdxIcon } from '@wikimedia/codex';
+import { CdxIcon } from '@wikimedia/codex';
 import { cdxIconDraggable } from '@wikimedia/codex-icons';
 import type { Icon } from '@wikimedia/codex-icons';
 import type { PropertyDefinition } from '@/domain/PropertyDefinition.ts';
@@ -125,22 +123,12 @@ function getTypeLabel( propertyType: string ): string {
 	return mw.msg( componentRegistry.getLabel( propertyType ) );
 }
 
-function onItemClick( name: string, enabled: boolean, event: MouseEvent ): void {
-	const target = event.target as HTMLElement;
-	if ( target.closest( '.cdx-label' ) || target.closest( 'input' ) ) {
-		return;
-	}
-	onToggle( name, enabled );
+function onShow( name: string ): void {
+	emit( 'update:display-rules', [ ...props.displayRules, { property: new PropertyName( name ) } ] );
 }
 
-function onToggle( name: string, enabled: boolean ): void {
-	let newRules: DisplayRule[];
-	if ( enabled ) {
-		newRules = [ ...props.displayRules, { property: new PropertyName( name ) } ];
-	} else {
-		newRules = props.displayRules.filter( ( r ) => r.property.toString() !== name );
-	}
-	emit( 'update:display-rules', newRules );
+function onHide( name: string ): void {
+	emit( 'update:display-rules', props.displayRules.filter( ( r ) => r.property.toString() !== name ) );
 }
 
 useSortable( listRef, {
@@ -171,6 +159,12 @@ useSortable( listRef, {
 		padding: 0;
 	}
 
+	&__empty {
+		color: @color-subtle;
+		padding: @spacing-50 @spacing-75;
+		font-size: @font-size-small;
+	}
+
 	&__item {
 		display: flex;
 		align-items: center;
@@ -178,6 +172,7 @@ useSortable( listRef, {
 		padding: @spacing-50 @spacing-75;
 		border-radius: @border-radius-base;
 		cursor: pointer;
+		user-select: none;
 
 		&--ghost {
 			opacity: 0.5;
@@ -193,6 +188,10 @@ useSortable( listRef, {
 			flex-shrink: 0;
 		}
 
+		&__name {
+			flex-grow: 1;
+		}
+
 		&__drag-handle {
 			min-width: @min-size-interactive-pointer;
 			min-height: @min-size-interactive-pointer;
@@ -203,6 +202,7 @@ useSortable( listRef, {
 			box-sizing: border-box;
 			opacity: 0;
 			transition: opacity @transition-duration-medium @transition-timing-function-system;
+			cursor: grab;
 
 			.ext-neowiki-display-rule-list__item:hover &,
 			.ext-neowiki-display-rule-list__item:focus-within & {
@@ -212,10 +212,6 @@ useSortable( listRef, {
 			.cdx-icon {
 				color: @color-placeholder;
 			}
-		}
-
-		&__toggle {
-			flex-grow: 1;
 		}
 	}
 }
