@@ -242,7 +242,9 @@
 						"cdxIconListNumbered",
 						"cdxIconClose",
 						"cdxIconSearch",
-						"cdxIconDraggable"
+						"cdxIconDraggable",
+						"cdxIconEye",
+						"cdxIconEyeClosed"
 					]
 				}
 			],
@@ -366,6 +368,8 @@
 				"neowiki-layout-editor-show-all-properties",
 				"neowiki-layout-editor-shown-properties",
 				"neowiki-layout-editor-hidden-properties",
+				"neowiki-layout-editor-show-property",
+				"neowiki-layout-editor-hide-property",
 				"neowiki-layout-editor-summary-default",
 				"neowiki-layout-editor-success",
 				"neowiki-layout-editor-error",

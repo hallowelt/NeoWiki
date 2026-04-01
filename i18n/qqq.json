@@ -86,6 +86,8 @@
 	"neowiki-layout-editor-show-all-properties": "Label for the toggle that controls whether all properties are shown or specific ones are chosen.",
 	"neowiki-layout-editor-shown-properties": "Section header for the list of shown properties in the display rule editor. $1 is the count.",
 	"neowiki-layout-editor-hidden-properties": "Section header for the list of hidden properties in the display rule editor. $1 is the count.",
+	"neowiki-layout-editor-show-property": "Aria label for the button that moves a property from the hidden section to the shown section.",
+	"neowiki-layout-editor-hide-property": "Aria label for the button that moves a property from the shown section to the hidden section.",
 	"neowiki-layout-editor-summary-default": "Default edit summary used when updating a layout via the UI.",
 	"neowiki-layout-editor-success": "Success notification shown after updating a layout. $1 is the layout name.",
 	"neowiki-layout-editor-error": "Error notification title shown when updating a layout fails. $1 is the layout name.",

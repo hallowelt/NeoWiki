@@ -11,23 +11,24 @@
 				v-for="property in enabledProperties"
 				:key="property.name.toString()"
 				class="ext-neowiki-display-rule-list__item ext-neowiki-display-rule-list__item--enabled"
-				@click="onHide( property.name.toString() )"
 			>
-				<CdxIcon
-					v-if="getPropertyType( property )"
-					:icon="getIcon( getPropertyType( property )! )"
-					:title="getTypeLabel( getPropertyType( property )! )"
-					class="ext-neowiki-display-rule-list__item__type-icon"
-				/>
-				<span class="ext-neowiki-display-rule-list__item__name">
-					{{ property.name.toString() }}
-				</span>
 				<span class="ext-neowiki-display-rule-list__item__drag-handle">
 					<CdxIcon
 						:icon="cdxIconDraggable"
 						:aria-hidden="true"
 					/>
 				</span>
+				<span class="ext-neowiki-display-rule-list__item__name">
+					{{ property.name.toString() }}
+				</span>
+				<CdxButton
+					class="ext-neowiki-display-rule-list__item__action"
+					weight="quiet"
+					:aria-label="$i18n( 'neowiki-layout-editor-hide-property' ).text()"
+					@click="onHide( property.name.toString() )"
+				>
+					<CdxIcon :icon="cdxIconEye" />
+				</CdxButton>
 			</li>
 		</ul>
 		<p
@@ -51,17 +52,18 @@
 				v-for="property in disabledProperties"
 				:key="property.name.toString()"
 				class="ext-neowiki-display-rule-list__item"
-				@click="onShow( property.name.toString() )"
 			>
-				<CdxIcon
-					v-if="getPropertyType( property )"
-					:icon="getIcon( getPropertyType( property )! )"
-					:title="getTypeLabel( getPropertyType( property )! )"
-					class="ext-neowiki-display-rule-list__item__type-icon"
-				/>
 				<span class="ext-neowiki-display-rule-list__item__name">
 					{{ property.name.toString() }}
 				</span>
+				<CdxButton
+					class="ext-neowiki-display-rule-list__item__action"
+					weight="quiet"
+					:aria-label="$i18n( 'neowiki-layout-editor-show-property' ).text()"
+					@click="onShow( property.name.toString() )"
+				>
+					<CdxIcon :icon="cdxIconEyeClosed" />
+				</CdxButton>
 			</li>
 		</ul>
 	</div>
@@ -69,13 +71,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { CdxIcon } from '@wikimedia/codex';
-import { cdxIconDraggable } from '@wikimedia/codex-icons';
-import type { Icon } from '@wikimedia/codex-icons';
+import { CdxButton, CdxIcon } from '@wikimedia/codex';
+import { cdxIconDraggable, cdxIconEye, cdxIconEyeClosed } from '@wikimedia/codex-icons';
 import type { PropertyDefinition } from '@/domain/PropertyDefinition.ts';
 import { PropertyName } from '@/domain/PropertyDefinition.ts';
 import type { DisplayRule } from '@/domain/Layout.ts';
-import { NeoWikiServices } from '@/NeoWikiServices.ts';
 import { useSortable } from '@/composables/useSortable.ts';
 
 const props = defineProps<{
@@ -88,7 +88,6 @@ const emit = defineEmits<{
 }>();
 
 const listRef = ref<HTMLElement | null>( null );
-const componentRegistry = NeoWikiServices.getComponentRegistry();
 
 const enabledNames = computed( () =>
 	new Set( props.displayRules.map( ( r ) => r.property.toString() ) )
@@ -110,18 +109,6 @@ const disabledProperties = computed( () =>
 
 const enabledCount = computed( () => enabledProperties.value.length );
 const disabledCount = computed( () => disabledProperties.value.length );
-
-function getPropertyType( property: PropertyDefinition ): string | undefined {
-	return property.type;
-}
-
-function getIcon( propertyType: string ): Icon {
-	return componentRegistry.getIcon( propertyType );
-}
-
-function getTypeLabel( propertyType: string ): string {
-	return mw.msg( componentRegistry.getLabel( propertyType ) );
-}
 
 function onShow( name: string ): void {
 	emit( 'update:display-rules', [ ...props.displayRules, { property: new PropertyName( name ) } ] );
@@ -171,7 +158,6 @@ useSortable( listRef, {
 		gap: @spacing-50;
 		padding: @spacing-50 @spacing-75;
 		border-radius: @border-radius-base;
-		cursor: pointer;
 		user-select: none;
 
 		&--ghost {
@@ -183,23 +169,14 @@ useSortable( listRef, {
 			background-color: @background-color-interactive-subtle;
 		}
 
-		&__type-icon {
-			color: @color-subtle;
-			flex-shrink: 0;
-		}
-
 		&__name {
 			flex-grow: 1;
 		}
 
 		&__drag-handle {
-			min-width: @min-size-interactive-pointer;
-			min-height: @min-size-interactive-pointer;
-			padding-inline: @spacing-30;
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
-			box-sizing: border-box;
 			opacity: 0;
 			transition: opacity @transition-duration-medium @transition-timing-function-system;
 			cursor: grab;
@@ -211,6 +188,16 @@ useSortable( listRef, {
 
 			.cdx-icon {
 				color: @color-placeholder;
+			}
+		}
+
+		&__action {
+			opacity: 0;
+			transition: opacity @transition-duration-medium @transition-timing-function-system;
+
+			.ext-neowiki-display-rule-list__item:hover &,
+			.ext-neowiki-display-rule-list__item:focus-within & {
+				opacity: 1;
 			}
 		}
 	}

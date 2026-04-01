@@ -159,6 +159,8 @@
 	"neowiki-layout-editor-show-all-properties": "Show all properties",
 	"neowiki-layout-editor-shown-properties": "Shown · $1",
 	"neowiki-layout-editor-hidden-properties": "Hidden · $1",
+	"neowiki-layout-editor-show-property": "Show property",
+	"neowiki-layout-editor-hide-property": "Hide property",
 	"neowiki-layout-editor-summary-default": "Update layout via NeoWiki UI",
 	"neowiki-layout-editor-success": "Updated $1 layout",
 	"neowiki-layout-editor-error": "Failed to update $1 layout.",
