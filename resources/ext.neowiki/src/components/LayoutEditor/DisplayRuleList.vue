@@ -53,6 +53,12 @@
 				:key="property.name.toString()"
 				class="ext-neowiki-display-rule-list__item"
 			>
+				<span class="ext-neowiki-display-rule-list__item__drag-handle ext-neowiki-display-rule-list__item__drag-handle--spacer">
+					<CdxIcon
+						:icon="cdxIconDraggable"
+						:aria-hidden="true"
+					/>
+				</span>
 				<CdxButton
 					class="ext-neowiki-display-rule-list__item__action"
 					weight="quiet"
@@ -188,6 +194,10 @@ useSortable( listRef, {
 
 			.cdx-icon {
 				color: @color-placeholder;
+			}
+
+			&--spacer {
+				visibility: hidden;
 			}
 		}
 
