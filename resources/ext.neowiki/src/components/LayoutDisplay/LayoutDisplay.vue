@@ -11,7 +11,7 @@
 				<LayoutDisplayHeader
 					:layout="currentLayout"
 					:can-edit-layout="canEditLayout"
-					@edit="isEditorOpen = true"
+					@edit="openEditor"
 				/>
 			</template>
 
@@ -133,6 +133,19 @@ function getTypeLabel( propertyType: string ): string {
 }
 
 const layoutStore = useLayoutStore();
+
+async function openEditor(): Promise<void> {
+	try {
+		await layoutStore.fetchLayout( currentLayout.value.getName() );
+		currentLayout.value = layoutStore.getLayout( currentLayout.value.getName() )!;
+		isEditorOpen.value = true;
+	} catch ( error ) {
+		mw.notify(
+			error instanceof Error ? error.message : String( error ),
+			{ type: 'error' }
+		);
+	}
+}
 
 const handleSaveLayout = async ( updatedLayout: Layout, comment: string ): Promise<void> => {
 	await layoutStore.saveLayout( updatedLayout, comment );
