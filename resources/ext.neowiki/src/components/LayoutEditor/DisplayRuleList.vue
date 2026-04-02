@@ -192,13 +192,7 @@ useSortable( listRef, {
 		}
 
 		&__action {
-			opacity: 0;
-			transition: opacity @transition-duration-medium @transition-timing-function-system;
-
-			.ext-neowiki-display-rule-list__item:hover &,
-			.ext-neowiki-display-rule-list__item:focus-within & {
-				opacity: 1;
-			}
+			flex-shrink: 0;
 		}
 	}
 }
