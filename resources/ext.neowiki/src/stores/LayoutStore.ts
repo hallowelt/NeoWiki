@@ -14,7 +14,7 @@ export const useLayoutStore = defineStore( 'layout', {
 			this.layouts.set( name, layout );
 		},
 		async fetchLayout( name: string ): Promise<void> {
-			const layout = await NeoWikiExtension.getInstance().getLayoutLookup().getLayout( name );
+			const layout = await NeoWikiExtension.getInstance().getLayoutRepository().getLayout( name );
 			this.setLayout( name, layout );
 		},
 		async getOrFetchLayout( name: string ): Promise<Layout> {
