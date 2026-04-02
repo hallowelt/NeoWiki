@@ -18,9 +18,6 @@
 						:aria-hidden="true"
 					/>
 				</span>
-				<span class="ext-neowiki-display-rule-list__item__name">
-					{{ property.name.toString() }}
-				</span>
 				<CdxButton
 					class="ext-neowiki-display-rule-list__item__action"
 					weight="quiet"
@@ -29,6 +26,9 @@
 				>
 					<CdxIcon :icon="cdxIconEye" />
 				</CdxButton>
+				<span class="ext-neowiki-display-rule-list__item__name">
+					{{ property.name.toString() }}
+				</span>
 			</li>
 		</ul>
 		<p
@@ -53,9 +53,6 @@
 				:key="property.name.toString()"
 				class="ext-neowiki-display-rule-list__item"
 			>
-				<span class="ext-neowiki-display-rule-list__item__name">
-					{{ property.name.toString() }}
-				</span>
 				<CdxButton
 					class="ext-neowiki-display-rule-list__item__action"
 					weight="quiet"
@@ -64,6 +61,9 @@
 				>
 					<CdxIcon :icon="cdxIconEyeClosed" />
 				</CdxButton>
+				<span class="ext-neowiki-display-rule-list__item__name">
+					{{ property.name.toString() }}
+				</span>
 			</li>
 		</ul>
 	</div>
