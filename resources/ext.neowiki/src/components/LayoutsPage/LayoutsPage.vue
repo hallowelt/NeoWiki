@@ -71,6 +71,7 @@
 		<LayoutCreatorDialog
 			v-if="canCreateLayouts"
 			:open="isCreatorOpen"
+			:on-save="handleCreateLayout"
 			@update:open="isCreatorOpen = $event"
 			@created="fetchLayouts( 0, pageSize )"
 		/>
@@ -243,6 +244,10 @@ async function openEditor( layoutName: string ): Promise<void> {
 
 const handleSaveLayout = async ( updatedLayout: Layout, comment: string ): Promise<void> => {
 	await layoutStore.saveLayout( updatedLayout, comment );
+};
+
+const handleCreateLayout = async ( layout: Layout, comment: string ): Promise<void> => {
+	await layoutStore.saveLayout( layout, comment );
 };
 
 function onLayoutSaved(): void {

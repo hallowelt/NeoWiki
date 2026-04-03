@@ -38,12 +38,13 @@ import type { LayoutCreatorExposes } from './LayoutCreator.vue';
 import EditSummary from '@/components/common/EditSummary.vue';
 import CloseConfirmationDialog from '@/components/common/CloseConfirmationDialog.vue';
 import { Layout } from '@/domain/Layout.ts';
-import { useLayoutStore } from '@/stores/LayoutStore.ts';
+import type { LayoutSaveHandler } from '@/components/LayoutEditor/LayoutEditorDialog.vue';
 import { useChangeDetection } from '@/composables/useChangeDetection.ts';
 import { useCloseConfirmation } from '@/composables/useCloseConfirmation.ts';
 
 const props = defineProps<{
 	open: boolean;
+	onSave: LayoutSaveHandler;
 }>();
 
 const emit = defineEmits<{
@@ -51,7 +52,6 @@ const emit = defineEmits<{
 	'created': [ layout: Layout ];
 }>();
 
-const layoutStore = useLayoutStore();
 const { hasChanged, markChanged, resetChanged } = useChangeDetection();
 
 const layoutCreatorRef = ref<LayoutCreatorExposes | null>( null );
@@ -95,7 +95,7 @@ async function handleSave( summary: string ): Promise<void> {
 	const editSummary = summary || mw.msg( 'neowiki-layout-creator-summary-default' );
 
 	try {
-		await layoutStore.saveLayout( layout, editSummary );
+		await props.onSave( layout, editSummary );
 		mw.notify( mw.msg( 'neowiki-layout-creator-success', layout.getName() ), { type: 'success' } );
 		emit( 'created', layout );
 		close();

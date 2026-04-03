@@ -64,18 +64,17 @@
 import { computed, ref, shallowRef, onMounted } from 'vue';
 import { CdxField, CdxMessage, CdxSelect, CdxTextInput } from '@wikimedia/codex';
 import type { MenuItemData, ValidationStatusType } from '@wikimedia/codex';
-import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
 import { Layout, type DisplayRule } from '@/domain/Layout.ts';
 import type { PropertyDefinition } from '@/domain/PropertyDefinition.ts';
 import DisplayRuleList from '@/components/LayoutEditor/DisplayRuleList.vue';
-import { useLayoutStore } from '@/stores/LayoutStore.ts';
 
 const emit = defineEmits<{
 	change: [];
 }>();
 
-const layoutStore = useLayoutStore();
+const layoutRepo = NeoWikiServices.getLayoutRepository();
+const schemaRepo = NeoWikiServices.getSchemaRepository();
 
 const DEBOUNCE_DELAY = 300;
 
@@ -104,8 +103,7 @@ const viewTypeMenuItems = computed<MenuItemData[]>( () =>
 
 onMounted( async () => {
 	try {
-		const repo = NeoWikiExtension.getInstance().getSchemaRepository();
-		schemaNames.value = await repo.getSchemaNames( '' );
+		schemaNames.value = await schemaRepo.getSchemaNames( '' );
 	} catch ( error ) {
 		console.error( 'Failed to fetch schema names:', error );
 	}
@@ -127,7 +125,6 @@ async function onSchemaSelected(): Promise<void> {
 	}
 
 	try {
-		const schemaRepo = NeoWikiServices.getSchemaRepository();
 		const schema = await schemaRepo.getSchema( selectedSchema.value );
 		schemaProperties.value = [ ...schema.getPropertyDefinitions() ];
 	} catch ( error ) {
@@ -162,7 +159,7 @@ function onNameInput(): void {
 
 async function checkDuplicateName( name: string, expectedSequence: number ): Promise<void> {
 	try {
-		await layoutStore.getOrFetchLayout( name );
+		await layoutRepo.getLayout( name );
 
 		if ( expectedSequence !== requestSequence ) {
 			return;
@@ -195,7 +192,7 @@ async function validate(): Promise<boolean> {
 	}
 
 	try {
-		await layoutStore.getOrFetchLayout( name );
+		await layoutRepo.getLayout( name );
 		nameError.value = mw.msg( 'neowiki-layout-creator-name-taken' );
 		nameStatus.value = 'error';
 		return false;
