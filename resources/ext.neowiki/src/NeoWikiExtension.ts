@@ -18,8 +18,12 @@ import { HttpClient } from '@/infrastructure/HttpClient/HttpClient';
 import { ProductionHttpClient } from '@/infrastructure/HttpClient/ProductionHttpClient';
 import { RestSchemaRepository } from '@/persistence/RestSchemaRepository.ts';
 import { SchemaRepository } from '@/application/SchemaRepository.ts';
-import { LayoutLookup } from '@/application/LayoutLookup.ts';
-import { RestLayoutLookup } from '@/persistence/RestLayoutLookup.ts';
+import { LayoutRepository } from '@/application/LayoutRepository.ts';
+import { RestLayoutRepository } from '@/persistence/RestLayoutRepository.ts';
+import { LayoutSerializer } from '@/persistence/LayoutSerializer.ts';
+import { LayoutDeserializer } from '@/persistence/LayoutDeserializer.ts';
+import { LayoutAuthorizer } from '@/application/LayoutAuthorizer.ts';
+import { RightsBasedLayoutAuthorizer } from '@/persistence/RightsBasedLayoutAuthorizer.ts';
 import { CsrfSendingHttpClient } from '@/infrastructure/HttpClient/CsrfSendingHttpClient.ts';
 import { SchemaSerializer } from '@/persistence/SchemaSerializer.ts';
 import { SchemaDeserializer } from '@/persistence/SchemaDeserializer.ts';
@@ -137,10 +141,19 @@ export class NeoWikiExtension {
 		);
 	}
 
-	public getLayoutLookup(): LayoutLookup {
-		return new RestLayoutLookup(
+	public getLayoutRepository(): LayoutRepository {
+		return new RestLayoutRepository(
 			this.getMediaWiki().util.wikiScript( 'rest' ),
 			this.newHttpClient(),
+			new LayoutSerializer(),
+			new LayoutDeserializer(),
+			new MediaWikiPageSaver( this.getMediaWiki() ),
+		);
+	}
+
+	public newLayoutAuthorizer(): LayoutAuthorizer {
+		return new RightsBasedLayoutAuthorizer(
+			this.getUserObjectBasedRightsFetcher(),
 		);
 	}
 
@@ -203,7 +216,7 @@ export class NeoWikiExtension {
 		return new StoreStateLoader(
 			this.getSubjectRepository(),
 			this.getSchemaRepository(),
-			this.getLayoutLookup(),
+			this.getLayoutRepository(),
 		);
 	}
 

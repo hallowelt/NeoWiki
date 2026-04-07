@@ -4,10 +4,14 @@ import NeoWikiApp from '@/components/NeoWikiApp.vue';
 import { CdxTooltip } from '@wikimedia/codex';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
 import SchemaDisplay from '@/components/SchemaDisplay/SchemaDisplay.vue';
+import LayoutDisplay from '@/components/LayoutDisplay/LayoutDisplay.vue';
 import SchemasPage from '@/components/SchemasPage/SchemasPage.vue';
+import LayoutsPage from '@/components/LayoutsPage/LayoutsPage.vue';
 import { NeoWikiExtension } from '@/NeoWikiExtension.ts';
 import { SchemaName } from '@/domain/Schema.ts';
+import type { LayoutName } from '@/domain/Layout.ts';
 import { SchemaDeserializer } from '@/persistence/SchemaDeserializer.ts';
+import { LayoutDeserializer } from '@/persistence/LayoutDeserializer.ts';
 import { showPendingNotification } from '@/presentation/PendingNotification.ts';
 
 async function initializeNeoWikiApp(): Promise<void> {
@@ -69,6 +73,46 @@ function initializeSchemasPage(): void {
 	}
 }
 
+async function initializeLayoutView(): Promise<void> {
+	const viewLayout = document.querySelector( '#ext-neowiki-view-layout' );
+
+	if ( viewLayout !== null ) {
+		const ext = NeoWikiExtension.getInstance();
+		const revisionId = mw.config.get( 'wgRevisionId' );
+		const layoutName = mw.config.get( 'wgTitle' ) as LayoutName;
+
+		const restApiUrl = ext.getMediaWiki().util.wikiScript( 'rest' );
+		const response = await ext.newHttpClient().get( `${ restApiUrl }/v1/revision/${ revisionId }` );
+
+		if ( !response.ok ) {
+			throw new Error( 'Error fetching layout revision' );
+		}
+
+		const data = await response.json();
+		const layoutJson = JSON.parse( data.source );
+
+		const layout = new LayoutDeserializer().deserialize( layoutName, layoutJson );
+
+		const app = createMwApp( LayoutDisplay, { layout } );
+		app.use( createPinia() );
+		NeoWikiServices.registerServices( app );
+		app.mount( viewLayout );
+	}
+}
+
+function initializeLayoutsPage(): void {
+	const layoutsPage = document.getElementById( 'ext-neowiki-layouts' );
+
+	if ( layoutsPage !== null ) {
+		const app = createMwApp( LayoutsPage );
+		app.use( createPinia() );
+		NeoWikiServices.registerServices( app );
+		app.mount( layoutsPage );
+	}
+}
+
 initializeNeoWikiApp();
 initializeSchemaView();
+initializeLayoutView();
 initializeSchemasPage();
+initializeLayoutsPage();

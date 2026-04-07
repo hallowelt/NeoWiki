@@ -22,4 +22,8 @@ export class ViewTypeRegistry {
 		return this.types.has( typeName );
 	}
 
+	public getTypeNames(): string[] {
+		return [ ...this.types.keys() ];
+	}
+
 }

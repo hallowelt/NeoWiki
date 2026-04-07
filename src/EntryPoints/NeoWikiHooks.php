@@ -28,6 +28,7 @@ use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\SchemaContentValidator;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\Subject\MediaWikiSubjectRepository;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\LayoutContentValidator;
 use ProfessionalWiki\NeoWiki\Presentation\JsonSchemaErrorFormatter;
+use MediaWiki\SpecialPage\SpecialPage;
 use Skin;
 use WikiPage;
 
@@ -38,6 +39,8 @@ class NeoWikiHooks {
 			self::handleContentPage( $out );
 		} elseif ( self::isSchemaPage( $out ) && $out->isArticle() ) {
 			self::handleSchemaPage( $out );
+		} elseif ( self::isLayoutPage( $out ) && $out->isArticle() ) {
+			self::handleLayoutPage( $out );
 		}
 	}
 
@@ -257,6 +260,44 @@ class NeoWikiHooks {
 
 	private static function isSchemaPage( OutputPage $out ): bool {
 		return $out->getTitle()->getNamespace() === NeoWikiExtension::NS_SCHEMA;
+	}
+
+	private static function isLayoutPage( OutputPage $out ): bool {
+		return $out->getTitle()->getNamespace() === NeoWikiExtension::NS_LAYOUT;
+	}
+
+	public static function onSidebarBeforeOutput( Skin $skin, array &$sidebar ): void {
+		$title = $skin->getTitle();
+
+		if ( $title === null ) {
+			return;
+		}
+
+		if ( $title->getNamespace() === NeoWikiExtension::NS_LAYOUT ) {
+			$sidebar['TOOLBOX'] ??= [];
+			array_unshift(
+				$sidebar['TOOLBOX'],
+				[
+					'text' => wfMessage( 'neowiki-layout-sidebar-all-layouts' )->text(),
+					'href' => SpecialPage::getTitleFor( 'Layouts' )->getLocalURL(),
+					'id' => 't-neowiki-layouts',
+				]
+			);
+		}
+	}
+
+	private static function handleLayoutPage( OutputPage $out ): void {
+		$out->addModules( 'ext.neowiki' );
+		$out->addModuleStyles( 'ext.neowiki.styles' );
+
+		$out->addHTML(
+			Html::element(
+				'div',
+				[
+					'id' => 'ext-neowiki-view-layout',
+				]
+			)
+		);
 	}
 
 }

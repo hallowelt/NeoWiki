@@ -52,6 +52,7 @@
 
 		"ContentModelCanBeUsedOn": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onContentModelCanBeUsedOn",
 
+		"SidebarBeforeOutput": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onSidebarBeforeOutput",
 		"ScribuntoExternalLibraries": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onScribuntoExternalLibraries"
 	},
 
@@ -112,7 +113,8 @@
 
 	"SpecialPages": {
 		"NeoJson": "ProfessionalWiki\\NeoWiki\\EntryPoints\\SpecialPages\\SpecialNeoJson",
-		"Schemas": "ProfessionalWiki\\NeoWiki\\EntryPoints\\SpecialPages\\SpecialSchemas"
+		"Schemas": "ProfessionalWiki\\NeoWiki\\EntryPoints\\SpecialPages\\SpecialSchemas",
+		"Layouts": "ProfessionalWiki\\NeoWiki\\EntryPoints\\SpecialPages\\SpecialLayouts"
 	},
 
 	"config": {
@@ -163,6 +165,11 @@
 			"path": "/neowiki/v0/layout/{layoutName}",
 			"method": [ "GET" ],
 			"factory": "ProfessionalWiki\\NeoWiki\\NeoWikiExtension::newGetLayoutApi"
+		},
+		{
+			"path": "/neowiki/v0/layouts",
+			"method": [ "GET" ],
+			"factory": "ProfessionalWiki\\NeoWiki\\NeoWikiExtension::newGetLayoutSummariesApi"
 		},
 		{
 			"path": "/neowiki/v0/schema-names/{search}",
@@ -239,7 +246,9 @@
 						"cdxIconMathematics",
 						"cdxIconClose",
 						"cdxIconSearch",
-						"cdxIconDraggable"
+						"cdxIconDraggable",
+						"cdxIconEye",
+						"cdxIconEyeClosed"
 					]
 				}
 			],
@@ -352,13 +361,57 @@
 				"neowiki-schema-abandonment-abandon",
 				"neowiki-schema-abandonment-keep-editing",
 				"neowiki-schema-abandonment-save-schema",
-				"neowiki-schema-delete",
-				"neowiki-schema-delete-confirm-title",
-				"neowiki-schema-delete-confirm-message",
-				"neowiki-schema-delete-confirm-delete",
-				"neowiki-schema-delete-summary-default",
-				"neowiki-schema-delete-success",
-				"neowiki-schema-delete-error"
+				"neowiki-edit-layout",
+				"neowiki-layout-display-schema",
+				"neowiki-layout-display-view-type",
+				"neowiki-layout-display-rules-caption",
+				"neowiki-layout-sidebar-all-layouts",
+				"neowiki-layout-display-rule-property",
+				"neowiki-layout-display-rule-attributes",
+				"neowiki-layout-display-no-rules",
+				"neowiki-editing-layout",
+				"neowiki-save-layout",
+				"neowiki-edit-summary-help-text-layout",
+				"neowiki-layout-editor-description",
+				"neowiki-layout-editor-description-placeholder",
+				"neowiki-layout-editor-schema",
+				"neowiki-layout-editor-view-type",
+				"neowiki-layout-editor-show-all-properties",
+				"neowiki-layout-editor-shown-properties",
+				"neowiki-layout-editor-hidden-properties",
+				"neowiki-layout-editor-show-property",
+				"neowiki-layout-editor-hide-property",
+				"neowiki-layout-editor-summary-default",
+				"neowiki-layout-editor-success",
+				"neowiki-layout-editor-error",
+				"neowiki-layout-editor-schema-fetch-error",
+				"neowiki-special-layouts",
+				"neowiki-layouts-column-name",
+				"neowiki-layouts-column-schema",
+				"neowiki-layouts-column-type",
+				"neowiki-layouts-column-description",
+				"neowiki-layouts-empty",
+				"neowiki-layout-creator-title",
+				"neowiki-layout-creator-button",
+				"neowiki-layout-creator-name-field",
+				"neowiki-layout-creator-name-placeholder",
+				"neowiki-layout-creator-name-required",
+				"neowiki-layout-creator-name-taken",
+				"neowiki-layout-creator-schema-field",
+				"neowiki-layout-creator-schema-placeholder",
+				"neowiki-layout-creator-view-type-field",
+				"neowiki-layout-creator-view-type-placeholder",
+				"neowiki-layout-creator-save",
+				"neowiki-layout-creator-success",
+				"neowiki-layout-creator-error",
+				"neowiki-layout-creator-summary-default",
+				"neowiki-layout-delete",
+				"neowiki-layout-delete-confirm-title",
+				"neowiki-layout-delete-confirm-message",
+				"neowiki-layout-delete-confirm-delete",
+				"neowiki-layout-delete-summary-default",
+				"neowiki-layout-delete-success",
+				"neowiki-layout-delete-error"
 			],
 			"@group:": "TODO: Load code separately while in development. Remove later.",
 			"group": "ext.neowiki"

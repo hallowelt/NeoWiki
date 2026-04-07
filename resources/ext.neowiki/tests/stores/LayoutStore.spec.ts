@@ -40,7 +40,7 @@ describe( 'LayoutStore', () => {
 		const layout = newLayout( 'CompanyInfo' );
 		const layoutLookup = new InMemoryLayoutLookup( [ layout ] );
 		vi.mocked( NeoWikiExtension.getInstance ).mockReturnValue( {
-			getLayoutLookup: () => layoutLookup,
+			getLayoutRepository: () => layoutLookup,
 		} as unknown as NeoWikiExtension );
 
 		const store = useLayoutStore();
@@ -54,15 +54,15 @@ describe( 'LayoutStore', () => {
 		const layout = newLayout( 'CachedLayout' );
 		store.setLayout( 'CachedLayout', layout );
 
-		const getLayoutLookupSpy = vi.fn();
+		const getLayoutRepositorySpy = vi.fn();
 		vi.mocked( NeoWikiExtension.getInstance ).mockReturnValue( {
-			getLayoutLookup: getLayoutLookupSpy,
+			getLayoutRepository: getLayoutRepositorySpy,
 		} as unknown as NeoWikiExtension );
 
 		const result = await store.getOrFetchLayout( 'CachedLayout' );
 
 		expect( result ).toEqual( layout );
-		expect( getLayoutLookupSpy ).not.toHaveBeenCalled();
+		expect( getLayoutRepositorySpy ).not.toHaveBeenCalled();
 	} );
 
 } );

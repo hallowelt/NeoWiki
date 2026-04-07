@@ -8,6 +8,8 @@ import { PropertyTypeRegistry } from '@/domain/PropertyType.ts';
 import { SchemaRepository } from '@/application/SchemaRepository.ts';
 import { SubjectLabelSearch } from '@/domain/SubjectLabelSearch.ts';
 import { ViewTypeRegistry } from '@/ViewTypeRegistry.ts';
+import { LayoutAuthorizer } from '@/application/LayoutAuthorizer.ts';
+import { LayoutRepository } from '@/application/LayoutRepository.ts';
 
 export enum Service { // TODO: make private
 	ComponentRegistry = 'ComponentRegistry',
@@ -17,7 +19,9 @@ export enum Service { // TODO: make private
 	PropertyTypeRegistry = 'PropertyTypeRegistry',
 	SchemaRepository = 'SchemaRepository',
 	SubjectLabelSearch = 'SubjectLabelSearch',
-	ViewTypeRegistry = 'ViewTypeRegistry'
+	ViewTypeRegistry = 'ViewTypeRegistry',
+	LayoutAuthorizer = 'LayoutAuthorizer',
+	LayoutRepository = 'LayoutRepository'
 }
 
 export class NeoWikiServices {
@@ -40,6 +44,8 @@ export class NeoWikiServices {
 			[ Service.SchemaRepository ]: neoWiki.getSchemaRepository(),
 			[ Service.SubjectLabelSearch ]: neoWiki.getSubjectLabelSearch(),
 			[ Service.ViewTypeRegistry ]: neoWiki.getViewTypeRegistry(),
+			[ Service.LayoutAuthorizer ]: neoWiki.newLayoutAuthorizer(),
+			[ Service.LayoutRepository ]: neoWiki.getLayoutRepository(),
 		};
 	}
 
@@ -73,6 +79,14 @@ export class NeoWikiServices {
 
 	public static getViewTypeRegistry(): ViewTypeRegistry {
 		return inject( Service.ViewTypeRegistry ) as ViewTypeRegistry;
+	}
+
+	public static getLayoutAuthorizer(): LayoutAuthorizer {
+		return inject( Service.LayoutAuthorizer ) as LayoutAuthorizer;
+	}
+
+	public static getLayoutRepository(): LayoutRepository {
+		return inject( Service.LayoutRepository ) as LayoutRepository;
 	}
 
 }

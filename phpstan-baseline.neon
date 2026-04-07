@@ -206,6 +206,31 @@ parameters:
 			path: src/Persistence/Neo4j/SubjectUpdater.php
 
 		-
+			message: "#^Cannot access property \\$page_title on array\\|stdClass\\|false\\.$#"
+			count: 1
+			path: src/Persistence/MediaWiki/DatabaseLayoutNameLookup.php
+
+		-
+			message: "#^Instantiated class TitleValue not found\\.$#"
+			count: 1
+			path: src/Persistence/MediaWiki/DatabaseLayoutNameLookup.php
+
+		-
+			message: "#^Method ProfessionalWiki\\\\NeoWiki\\\\Persistence\\\\MediaWiki\\\\DatabaseLayoutNameLookup\\:\\:dbResultToTitleValueArray\\(\\) has invalid return type TitleValue\\.$#"
+			count: 1
+			path: src/Persistence/MediaWiki/DatabaseLayoutNameLookup.php
+
+		-
+			message: "#^Method ProfessionalWiki\\\\NeoWiki\\\\Persistence\\\\MediaWiki\\\\DatabaseLayoutNameLookup\\:\\:getLayoutNames\\(\\) has invalid return type TitleValue\\.$#"
+			count: 1
+			path: src/Persistence/MediaWiki/DatabaseLayoutNameLookup.php
+
+		-
+			message: "#^Method ProfessionalWiki\\\\NeoWiki\\\\Persistence\\\\LayoutNameLookup\\:\\:getLayoutNames\\(\\) has invalid return type TitleValue\\.$#"
+			count: 1
+			path: src/Persistence/LayoutNameLookup.php
+
+		-
 			message: "#^Method ProfessionalWiki\\\\NeoWiki\\\\Persistence\\\\SchemaNameLookup\\:\\:getSchemaNamesMatching\\(\\) has invalid return type TitleValue\\.$#"
 			count: 1
 			path: src/Persistence/SchemaNameLookup.php
