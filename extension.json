@@ -52,7 +52,8 @@
 
 		"ContentModelCanBeUsedOn": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onContentModelCanBeUsedOn",
 
-		"SidebarBeforeOutput": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onSidebarBeforeOutput"
+		"SidebarBeforeOutput": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onSidebarBeforeOutput",
+		"ScribuntoExternalLibraries": "ProfessionalWiki\\NeoWiki\\EntryPoints\\NeoWikiHooks::onScribuntoExternalLibraries"
 	},
 
 	"ContentHandlers": {
@@ -213,6 +214,8 @@
 				"CdxTooltip",
 				"CdxSelect",
 				"CdxCheckbox",
+				"CdxChipInput",
+				"CdxMultiselectLookup",
 				"CdxTextArea",
 				"CdxMenuButton",
 				"useResizeObserver",
@@ -239,7 +242,8 @@
 						"cdxIconCheck",
 						"cdxIconSearchCaseSensitive",
 						"cdxIconArticles",
-						"cdxIconListNumbered",
+						"cdxIconListBullet",
+						"cdxIconMathematics",
 						"cdxIconClose",
 						"cdxIconSearch",
 						"cdxIconDraggable",
@@ -255,6 +259,7 @@
 				"neowiki-property-type-url",
 				"neowiki-property-type-number",
 				"neowiki-property-type-relation",
+				"neowiki-property-type-select",
 				"neowiki-infobox-type",
 				"neowiki-infobox-edit-link",
 				"neowiki-field-required",
@@ -265,6 +270,10 @@
 				"neowiki-field-min-value",
 				"neowiki-field-max-value",
 				"neowiki-field-invalid-url",
+				"neowiki-field-invalid-option",
+				"neowiki-field-single-value-only",
+				"neowiki-select-placeholder",
+				"neowiki-select-no-results",
 				"neowiki-property-editor-description",
 				"neowiki-property-editor-name",
 				"neowiki-property-editor-type",
@@ -280,6 +289,8 @@
 				"neowiki-property-editor-length-min-exceeds-max",
 				"neowiki-property-editor-multiple",
 				"neowiki-property-editor-unique-items",
+				"neowiki-property-editor-options",
+				"neowiki-property-editor-options-unique",
 				"neowiki-save-schema",
 				"neowiki-edit-summary-label",
 				"neowiki-edit-summary-placeholder",

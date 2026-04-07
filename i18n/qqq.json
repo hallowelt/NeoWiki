@@ -53,6 +53,14 @@
 	"neowiki-schemas-column-properties": "Column header for the number of property definitions in the schemas list table on [[Special:Schemas]].",
 	"neowiki-schemas-empty": "Message shown when no schemas exist yet on [[Special:Schemas]].",
 
+	"neowiki-schema-delete": "Aria label for the delete button on a Schema row in the schemas list.",
+	"neowiki-schema-delete-confirm-title": "Title of the confirmation dialog shown when deleting a schema.",
+	"neowiki-schema-delete-confirm-message": "Message in the delete confirmation dialog. $1 is the schema name.",
+	"neowiki-schema-delete-confirm-delete": "Label for the delete button in the schema deletion dialog.",
+	"neowiki-schema-delete-summary-default": "Default deletion reason used when deleting a schema via the UI.",
+	"neowiki-schema-delete-success": "Success notification shown after deleting a schema. $1 is the schema name.",
+	"neowiki-schema-delete-error": "Error notification title shown when deleting a schema fails. $1 is the schema name.",
+
 	"neowiki-close-confirmation-title": "Title of the confirmation dialog shown when closing a dialog with unsaved changes.",
 	"neowiki-close-confirmation-message": "Message in the confirmation dialog asking the user to confirm discarding unsaved changes.",
 	"neowiki-close-confirmation-discard": "Label for the destructive button that discards unsaved changes and closes the dialog.",
@@ -121,5 +129,12 @@
 	"neowiki-layout-delete-confirm-delete": "Label for the delete button in the layout deletion dialog.",
 	"neowiki-layout-delete-summary-default": "Default deletion reason used when deleting a layout via the UI.",
 	"neowiki-layout-delete-success": "Success notification shown after deleting a layout. $1 is the layout name.",
-	"neowiki-layout-delete-error": "Error notification title shown when deleting a layout fails. $1 is the layout name."
+	"neowiki-layout-delete-error": "Error notification title shown when deleting a layout fails. $1 is the layout name.",
+	"neowiki-property-type-select": "Label for the select/dropdown property type shown in the property type selector.",
+	"neowiki-property-editor-options": "Label for the options field in the select property type editor, where schema creators define the allowed values.",
+	"neowiki-property-editor-options-unique": "Error shown in the schema editor when duplicate option values are entered for a select property.",
+	"neowiki-field-invalid-option": "Validation error shown when a selected value is not in the allowed options list. $1 is the invalid value.",
+	"neowiki-field-single-value-only": "Validation error shown when multiple values are selected for a single-select property.",
+	"neowiki-select-placeholder": "Placeholder text shown in the select dropdown before any option is chosen.",
+	"neowiki-select-no-results": "Message shown in the multi-select dropdown when the typed text does not match any available option."
 }

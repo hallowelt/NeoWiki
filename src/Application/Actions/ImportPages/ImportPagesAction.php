@@ -6,6 +6,7 @@ namespace ProfessionalWiki\NeoWiki\Application\Actions\ImportPages;
 
 use MediaWiki\CommentStore\CommentStoreComment;
 use MediaWiki\Content\Content;
+use MediaWiki\Content\TextContent;
 use MediaWiki\Content\WikitextContent;
 use MediaWiki\Title\Title;
 use ProfessionalWiki\NeoWiki\EntryPoints\Content\SubjectContent;
@@ -58,7 +59,7 @@ class ImportPagesAction {
 
 		foreach ( $this->pageContentSource->getPageContentStrings() as $fileName => $sourceText ) {
 			$this->createPage(
-				explode( '.', $fileName )[0],
+				self::stripFileExtension( $fileName ),
 				[
 					'main' => $this->fileNameAndSourceToContent( $fileName, $sourceText ),
 				]
@@ -67,7 +68,7 @@ class ImportPagesAction {
 
 		foreach ( $this->moduleContentSource->getPageContentStrings() as $moduleName => $moduleContent ) {
 			$this->createPage(
-				"Module:$moduleName",
+				'Module:' . self::stripFileExtension( $moduleName ),
 				[
 					'main' => $this->fileNameAndSourceToContent( $moduleName, $moduleContent ),
 				]
@@ -77,9 +78,17 @@ class ImportPagesAction {
 		$this->presenter->presentDone();
 	}
 
+	private static function stripFileExtension( string $fileName ): string {
+		return preg_replace( '/\.(wikitext|lua)$/', '', $fileName ) ?? $fileName;
+	}
+
 	private function fileNameAndSourceToContent( string $fileName, string $sourceText ): Content {
 		if ( str_ends_with( $fileName, '.wikitext' ) ) {
 			return new WikitextContent( $sourceText );
+		}
+
+		if ( str_ends_with( $fileName, '.lua' ) ) {
+			return new TextContent( $sourceText, 'Scribunto' );
 		}
 
 		throw new RuntimeException( "Could not import file '$fileName'" );
