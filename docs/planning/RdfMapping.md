@@ -262,7 +262,7 @@ example, a simple "Creator" relation in NeoWiki would correspond to the CIDOC-CR
 Production event is an intermediate entity that doesn't exist in NeoWiki's data. Does this affect the base RDF
 mapping, or is it purely an ontology mapping layer concern?
 
-*Feedback (KMA, from Wikibase experience): Three approaches exist: (1) basic entity-property — simplest,
+*Feedback (TIB, Kolja, from Wikibase experience): Three approaches exist: (1) basic entity-property — simplest,
 (2) event-centric — more performant for queries but data not visible on the subject's page, (3) qualifier-based
 — familiar from Wikidata, all data on one page. The event-centric UX downside could be mitigated by displaying
 related pages on a subject's page (like transclusion of the named graph up to a defined depth). For SPARQL, the
