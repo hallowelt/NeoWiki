@@ -14,14 +14,9 @@ If you are not familiar with the NeoWiki terminology yet, see [the glossary](../
 
 ### Medium Priority
 
-* Are we sure we should switch to "[Global Properties](GlobalProperties.md)", replacing the current
-  "[Local Properties](../adr/006_Schemas.md)" approach?
 * [Validation](Validation.md): do we need to add backend validation?
   (80% likely, but can be deferred)
 * Verify the current data model (Property-graph-like Subjects and multi-Subject support) is workable for provenance.
-* Is multi-Subject support in the editor essential?
-  Example: Person has a "Name" property. Name is a Subject with its own PersonName schema. The "Edit Person" form would show the
-  PersonName fields and create or update both the Person Subject and linked PersonName Subject.
 * Does the [RDF mapping stwaman proposal](RdfMapping.md) go in the right direction? What needs to be adjusted?
 * Is our [Graph Model](../GraphModel.md) OK? In particular, is it OK to have non-Subject data in there, like the connected
   MediaWiki pages? (80% likely, briefly covered in Vienna: can filter out these values when querying)
@@ -33,3 +28,6 @@ If you are not familiar with the NeoWiki terminology yet, see [the glossary](../
   (likely, but let's verify)
 * Do we need to have an API that provides Schemas in JSON Schema format? (50% likely, can be deferred, easy to implement)
 * ID-generation for bulk import: do we need an API for (bulk) ID gen? (local impact, easy to implement)
+* Is multi-Subject support in the editor essential?
+  Example: Person has a "Name" property. Name is a Subject with its own PersonName schema. The "Edit Person" form would show the
+  PersonName fields and create or update both the Person Subject and linked PersonName Subject.
