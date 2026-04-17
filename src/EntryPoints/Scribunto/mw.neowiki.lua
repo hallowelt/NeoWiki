@@ -32,4 +32,8 @@ function neowiki.getChildSubjects( pageName )
 	return php.getChildSubjects( pageName )
 end
 
+function neowiki.getSchema( name )
+	return php.getSchema( name )
+end
+
 return neowiki

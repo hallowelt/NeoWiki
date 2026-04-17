@@ -6,11 +6,13 @@ namespace ProfessionalWiki\NeoWiki\EntryPoints\Scribunto;
 
 use MediaWiki\Extension\Scribunto\Engines\LuaCommon\LibraryBase;
 use ProfessionalWiki\NeoWiki\Application\SubjectResolver;
+use ProfessionalWiki\NeoWiki\Domain\Schema\SchemaName;
 use ProfessionalWiki\NeoWiki\NeoWikiExtension;
 
 class ScribuntoLuaLibrary extends LibraryBase {
 
 	private ?SubjectDataLookup $subjectDataLookup = null;
+	private ?SchemaLuaSerializer $schemaLuaSerializer = null;
 
 	private function getSubjectDataLookup(): SubjectDataLookup {
 		if ( $this->subjectDataLookup === null ) {
@@ -27,6 +29,13 @@ class ScribuntoLuaLibrary extends LibraryBase {
 		return $this->subjectDataLookup;
 	}
 
+	private function getSchemaLuaSerializer(): SchemaLuaSerializer {
+		if ( $this->schemaLuaSerializer === null ) {
+			$this->schemaLuaSerializer = new SchemaLuaSerializer();
+		}
+		return $this->schemaLuaSerializer;
+	}
+
 	public function register(): array {
 		$lib = [
 			'getValue' => [ $this, 'getValue' ],
@@ -34,6 +43,7 @@ class ScribuntoLuaLibrary extends LibraryBase {
 			'getMainSubject' => [ $this, 'getMainSubject' ],
 			'getSubject' => [ $this, 'getSubject' ],
 			'getChildSubjects' => [ $this, 'getChildSubjects' ],
+			'getSchema' => [ $this, 'getSchema' ],
 		];
 
 		return $this->getEngine()->registerInterface(
@@ -86,6 +96,21 @@ class ScribuntoLuaLibrary extends LibraryBase {
 		}
 
 		return $this->getSubjectDataLookup()->getChildSubjectsData( $this->getTitle(), $pageName );
+	}
+
+	public function getSchema( ?string $schemaName = null ): array {
+		$this->checkType( 'mw.neowiki.getSchema', 1, $schemaName, 'string' );
+		$this->incrementExpensiveFunctionCount();
+
+		$schema = NeoWikiExtension::getInstance()
+			->getSchemaLookup()
+			->getSchema( new SchemaName( $schemaName ) );
+
+		if ( $schema === null ) {
+			return [ null ];
+		}
+
+		return [ $this->getSchemaLuaSerializer()->toLuaTable( $schema ) ];
 	}
 
 }
