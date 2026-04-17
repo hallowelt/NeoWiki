@@ -21,7 +21,7 @@ class ColorProperty extends PropertyDefinition {
 		return new self( core: $core );
 	}
 
-	protected function nonCoreToJson(): array {
+	public function nonCoreToJson(): array {
 		return [];
 	}
 

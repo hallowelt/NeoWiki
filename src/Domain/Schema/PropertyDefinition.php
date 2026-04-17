@@ -48,7 +48,7 @@ abstract class PropertyDefinition {
 		);
 	}
 
-	abstract protected function nonCoreToJson(): array;
+	abstract public function nonCoreToJson(): array;
 
 	/**
 	 * @throws InvalidArgumentException

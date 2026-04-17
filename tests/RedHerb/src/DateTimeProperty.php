@@ -45,7 +45,7 @@ class DateTimeProperty extends PropertyDefinition {
 		);
 	}
 
-	protected function nonCoreToJson(): array {
+	public function nonCoreToJson(): array {
 		return [
 			'minimum' => $this->getMinimum(),
 			'maximum' => $this->getMaximum(),
