@@ -100,12 +100,8 @@ function p.schema( frame )
 		local required = prop.required and 'Yes' or 'No'
 		local details = {}
 
-		if prop.type == 'select' and prop.options then
-			local opts = {}
-			for _, o in ipairs( prop.options ) do
-				opts[#opts + 1] = o
-			end
-			details[#details + 1] = 'options: ' .. table.concat( opts, ', ' )
+		if prop.type == 'select' then
+			details[#details + 1] = 'options: ' .. table.concat( prop.options, ', ' )
 		elseif prop.type == 'number' then
 			if prop.minimum ~= nil then
 				details[#details + 1] = 'min: ' .. tostring( prop.minimum )
@@ -117,12 +113,8 @@ function p.schema( frame )
 				details[#details + 1] = 'precision: ' .. tostring( prop.precision )
 			end
 		elseif prop.type == 'relation' then
-			if prop.targetSchema then
-				details[#details + 1] = 'targetSchema: ' .. prop.targetSchema
-			end
-			if prop.relation then
-				details[#details + 1] = 'relation: ' .. prop.relation
-			end
+			details[#details + 1] = 'targetSchema: ' .. prop.targetSchema
+			details[#details + 1] = 'relation: ' .. prop.relation
 		elseif prop.type == 'text' or prop.type == 'url' then
 			if prop.multiple then
 				details[#details + 1] = 'multiple: true'

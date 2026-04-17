@@ -6,6 +6,7 @@ namespace ProfessionalWiki\NeoWiki\Tests\EntryPoints\Scribunto;
 
 use PHPUnit\Framework\TestCase;
 use ProfessionalWiki\NeoWiki\Domain\Schema\PropertyCore;
+use ProfessionalWiki\NeoWiki\Domain\Schema\PropertyDefinition;
 use ProfessionalWiki\NeoWiki\Domain\Schema\PropertyDefinitions;
 use ProfessionalWiki\NeoWiki\Domain\Schema\Property\NumberProperty;
 use ProfessionalWiki\NeoWiki\Domain\Schema\Property\RelationProperty;
@@ -182,6 +183,28 @@ class SchemaLuaSerializerTest extends TestCase {
 		$this->assertSame( 'Works for', $prop['relation'] );
 		$this->assertSame( 'Company', $prop['targetSchema'] );
 		$this->assertFalse( $prop['multiple'] );
+	}
+
+	public function testListWithNullGapIsCompactedAndOneIndexed(): void {
+		$property = new class( $this->coreOptional() ) extends PropertyDefinition {
+
+			public function getPropertyType(): string {
+				return 'fake';
+			}
+
+			public function nonCoreToJson(): array {
+				return [ 'items' => [ 'a', null, 'b', '', 'c' ] ];
+			}
+
+		};
+		$schema = $this->schemaWith( [ 'Fake' => $property ] );
+
+		$prop = $this->newSerializer()->toLuaTable( $schema )['properties'][1];
+
+		$this->assertSame(
+			[ 1 => 'a', 2 => 'b', 3 => 'c' ],
+			$prop['items']
+		);
 	}
 
 	public function testPropertyOrderMatchesDefinitionOrder(): void {

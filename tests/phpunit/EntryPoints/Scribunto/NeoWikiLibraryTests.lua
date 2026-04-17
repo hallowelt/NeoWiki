@@ -115,6 +115,36 @@ local function testGetSchemaReturnsNilForMissingSchema()
 	return nw.getSchema( 'NopeDoesNotExist' )
 end
 
+local function testGetSchemaReturnsNilForEmptyString()
+	return nw.getSchema( '' )
+end
+
+local function testGetSchemaReturnsNilForReservedName()
+	return nw.getSchema( 'page' )
+end
+
+local function testGetSchemaNumberPropertyBoundsAndDefault()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	for _, p in ipairs( s.properties ) do
+		if p.name == 'EmploymentFte' then
+			return p.type, p.minimum, p.maximum, p.default
+		end
+	end
+	return 'not-found'
+end
+
+local function testGetSchemaRelationPropertyTargetSchema()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	for _, p in ipairs( s.properties ) do
+		if p.name == 'Employer' then
+			return p.type, p.relation, p.targetSchema
+		end
+	end
+	return 'not-found'
+end
+
 local tests = {
 	-- getValue
 	{ name = 'getValue returns string value',
@@ -165,6 +195,14 @@ local tests = {
 	  func = testGetSchemaSelectOptionsAreOneIndexed, expect = { 'Active', 'On leave' } },
 	{ name = 'getSchema returns nil for missing schema',
 	  func = testGetSchemaReturnsNilForMissingSchema, expect = { nil } },
+	{ name = 'getSchema returns nil for empty string',
+	  func = testGetSchemaReturnsNilForEmptyString, expect = { nil } },
+	{ name = 'getSchema returns nil for reserved name',
+	  func = testGetSchemaReturnsNilForReservedName, expect = { nil } },
+	{ name = 'getSchema number property exposes bounds and default',
+	  func = testGetSchemaNumberPropertyBoundsAndDefault, expect = { 'number', 0, 100, 100 } },
+	{ name = 'getSchema relation property exposes relation and targetSchema',
+	  func = testGetSchemaRelationPropertyTargetSchema, expect = { 'relation', 'Works for', 'Company' } },
 
 }
 

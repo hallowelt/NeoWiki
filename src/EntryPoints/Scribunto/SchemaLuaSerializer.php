@@ -51,6 +51,10 @@ class SchemaLuaSerializer {
 	}
 
 	private function normalise( array $values ): array {
+		// If the input is a 0-indexed PHP list, filtering may leave holes; compact
+		// and re-index to 1-based at the end so Lua's ipairs() works.
+		$inputWasList = $values !== [] && array_is_list( $values );
+
 		$result = [];
 		foreach ( $values as $key => $value ) {
 			if ( $value === null || $value === '' ) {
@@ -58,20 +62,16 @@ class SchemaLuaSerializer {
 			}
 			if ( is_array( $value ) ) {
 				$value = $this->normalise( $value );
-				if ( $this->isZeroIndexedList( $value ) ) {
-					$value = array_combine( range( 1, count( $value ) ), array_values( $value ) );
-				}
 			}
 			$result[$key] = $value;
 		}
-		return $result;
-	}
 
-	private function isZeroIndexedList( array $value ): bool {
-		if ( $value === [] ) {
-			return false;
+		if ( $inputWasList && $result !== [] ) {
+			$compact = array_values( $result );
+			return array_combine( range( 1, count( $compact ) ), $compact );
 		}
-		return array_is_list( $value );
+
+		return $result;
 	}
 
 }

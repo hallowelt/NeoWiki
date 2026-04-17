@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace ProfessionalWiki\NeoWiki\EntryPoints\Scribunto;
 
+use InvalidArgumentException;
 use MediaWiki\Extension\Scribunto\Engines\LuaCommon\LibraryBase;
 use ProfessionalWiki\NeoWiki\Application\SubjectResolver;
 use ProfessionalWiki\NeoWiki\Domain\Schema\SchemaName;
@@ -102,9 +103,13 @@ class ScribuntoLuaLibrary extends LibraryBase {
 		$this->checkType( 'mw.neowiki.getSchema', 1, $schemaName, 'string' );
 		$this->incrementExpensiveFunctionCount();
 
-		$schema = NeoWikiExtension::getInstance()
-			->getSchemaLookup()
-			->getSchema( new SchemaName( $schemaName ) );
+		try {
+			$name = new SchemaName( $schemaName );
+		} catch ( InvalidArgumentException ) {
+			return [ null ];
+		}
+
+		$schema = NeoWikiExtension::getInstance()->getSchemaLookup()->getSchema( $name );
 
 		if ( $schema === null ) {
 			return [ null ];

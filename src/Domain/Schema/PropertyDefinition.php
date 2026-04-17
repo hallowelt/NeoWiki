@@ -48,6 +48,13 @@ abstract class PropertyDefinition {
 		);
 	}
 
+	/**
+	 * Type-specific fields beyond the common core (type/description/required/default).
+	 *
+	 * @internal Public only so that PHP-side serializers (REST `toJson`, the Lua
+	 * `SchemaLuaSerializer`, and persistence) can share one extension point per type.
+	 * Not intended as a general UI-layer API.
+	 */
 	abstract public function nonCoreToJson(): array;
 
 	/**

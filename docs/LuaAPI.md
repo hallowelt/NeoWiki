@@ -188,7 +188,12 @@ on the property type:
 | `relation` | `name`, `type`, `required`, `multiple`, `relation`, `targetSchema` | `description`, `default` |
 
 Optional fields are **omitted** from the returned table when empty or unset. Check for presence
-before using them: `if prop.description then ... end`.
+before using them: `if prop.description then ... end`. Boolean fields in the "always present"
+column (such as `required`, `multiple`, `uniqueItems`) are always emitted, including when
+`false` — compare the value directly, don't check for presence.
+
+The `Schema does not exist` case also covers an empty/whitespace-only name or a reserved name
+(`page`, `subject`); all of these return `nil` rather than erroring.
 
 #### Error behaviour
 
