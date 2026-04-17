@@ -84,4 +84,60 @@ function p.children( frame )
 	return table.concat( parts, ', ' )
 end
 
+function p.schema( frame )
+	local schemaName = frame.args[1]
+	local schema = nw.getSchema( schemaName )
+
+	if not schema then
+		return 'Schema not found'
+	end
+
+	local rows = {}
+	rows[#rows + 1] = '{| class="wikitable"'
+	rows[#rows + 1] = '! Name !! Type !! Required !! Details'
+
+	for _, prop in ipairs( schema.properties ) do
+		local required = prop.required and 'Yes' or 'No'
+		local details = {}
+
+		if prop.type == 'select' and prop.options then
+			local opts = {}
+			for _, o in ipairs( prop.options ) do
+				opts[#opts + 1] = o
+			end
+			details[#details + 1] = 'options: ' .. table.concat( opts, ', ' )
+		elseif prop.type == 'number' then
+			if prop.minimum ~= nil then
+				details[#details + 1] = 'min: ' .. tostring( prop.minimum )
+			end
+			if prop.maximum ~= nil then
+				details[#details + 1] = 'max: ' .. tostring( prop.maximum )
+			end
+			if prop.precision ~= nil then
+				details[#details + 1] = 'precision: ' .. tostring( prop.precision )
+			end
+		elseif prop.type == 'relation' then
+			if prop.targetSchema then
+				details[#details + 1] = 'targetSchema: ' .. prop.targetSchema
+			end
+			if prop.relation then
+				details[#details + 1] = 'relation: ' .. prop.relation
+			end
+		elseif prop.type == 'text' or prop.type == 'url' then
+			if prop.multiple then
+				details[#details + 1] = 'multiple: true'
+			end
+			if prop.uniqueItems then
+				details[#details + 1] = 'uniqueItems: true'
+			end
+		end
+
+		rows[#rows + 1] = '|-'
+		rows[#rows + 1] = '| ' .. prop.name .. ' || ' .. prop.type .. ' || ' .. required .. ' || ' .. table.concat( details, ', ' )
+	end
+
+	rows[#rows + 1] = '|}'
+	return table.concat( rows, '\n' )
+end
+
 return p
