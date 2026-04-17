@@ -12,6 +12,7 @@ enough.
 | Get a page's Main Subject (label, schema, all properties) | [`nw.getMainSubject`](#nwgetmainsubjectpagename) |
 | Get a Subject by its ID, regardless of which page it's on | [`nw.getSubject`](#nwgetsubjectsubjectid) |
 | List all Child Subjects on a page | [`nw.getChildSubjects`](#nwgetchildsubjectspagename) |
+| Inspect a Schema | [`nw.getSchema`](#nwgetschemaname) |
 
 For definitions of terms like Subject, Schema, and Statement, see the [Glossary](Glossary.md).
 
@@ -157,6 +158,68 @@ for _, child in ipairs(children) do
 end
 ```
 
+### `nw.getSchema(name)`
+
+Returns the definition of a Schema as a Lua table, including all its Property Definitions.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | string | Required. The name of the Schema (e.g. `'Company'`). |
+
+#### Returns
+
+A table with the following fields, or `nil` if the Schema does not exist:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | The Schema name. |
+| `description` | string | Present only when the description is non-empty. |
+| `properties` | table | 1-indexed list of property tables, in schema-defined order. |
+
+Each entry in `properties` always contains `name`, `type`, and `required`. Additional fields depend
+on the property type:
+
+| Type | Always present | Present when set |
+|------|----------------|------------------|
+| `text` | `name`, `type`, `required`, `multiple`, `uniqueItems` | `description`, `default` |
+| `url` | `name`, `type`, `required`, `multiple`, `uniqueItems` | `description`, `default` |
+| `number` | `name`, `type`, `required` | `description`, `default`, `precision`, `minimum`, `maximum` |
+| `select` | `name`, `type`, `required`, `multiple`, `options` (1-indexed list) | `description`, `default` |
+| `relation` | `name`, `type`, `required`, `multiple`, `relation`, `targetSchema` | `description`, `default` |
+
+Optional fields are **omitted** from the returned table when empty or unset. Check for presence
+before using them: `if prop.description then ... end`.
+
+#### Error behaviour
+
+| Case | Behaviour |
+|------|-----------|
+| `name` missing or not a string | Raises a Lua error |
+| Schema does not exist | Returns `nil` |
+
+#### Performance note
+
+Always counts as an expensive parser function (against the page's expensive function limit).
+
+#### Examples
+
+```lua
+-- Basic: fetch a schema and read its first property name
+local schema = nw.getSchema('Company')
+-- schema.name             --> "Company"
+-- schema.properties[1].name  --> first property name
+```
+
+```lua
+-- Generic: list all properties of this page's main subject schema
+local subject = nw.getMainSubject()
+local schema = nw.getSchema(subject.schema)
+
+for _, prop in ipairs(schema.properties) do
+    mw.log(prop.name .. ' (' .. prop.type .. ')')
+end
+```
+
 ## Subject table format
 
 Subject tables returned by `getMainSubject`, `getSubject`, and `getChildSubjects` have this
@@ -206,8 +269,6 @@ The following are not yet implemented:
 
 - `nw.query(cypher, params)` — Execute Cypher queries from Lua. Tracked in
   [#736](https://github.com/ProfessionalWiki/NeoWiki/issues/736).
-- `nw.getSchema(name)` — Schema introspection for generic templates. Tracked in
-  [#737](https://github.com/ProfessionalWiki/NeoWiki/issues/737).
 
 ## Related Documentation
 
