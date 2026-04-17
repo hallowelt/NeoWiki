@@ -85,6 +85,36 @@ local function testGetChildSubjectsEmptyForPageWithoutChildren()
 	return #children
 end
 
+-- getSchema tests
+
+local function testGetSchemaReturnsNameAndPropertyCount()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	return s.name, #s.properties
+end
+
+local function testGetSchemaPropertyShape()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	local p = s.properties[1]
+	return p.name, p.type, p.required
+end
+
+local function testGetSchemaSelectOptionsAreOneIndexed()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	for _, p in ipairs( s.properties ) do
+		if p.name == 'Status' then
+			return p.options[1], p.options[3]
+		end
+	end
+	return 'not-found'
+end
+
+local function testGetSchemaReturnsNilForMissingSchema()
+	return nw.getSchema( 'NopeDoesNotExist' )
+end
+
 local tests = {
 	-- getValue
 	{ name = 'getValue returns string value',
@@ -125,6 +155,16 @@ local tests = {
 	  func = testGetChildSubjectsHasLabels, expect = { 'Child Entry', 'Entry' } },
 	{ name = 'getChildSubjects returns empty for page without children',
 	  func = testGetChildSubjectsEmptyForPageWithoutChildren, expect = { 0 } },
+
+	-- getSchema
+	{ name = 'getSchema returns name and property count',
+	  func = testGetSchemaReturnsNameAndPropertyCount, expect = { 'Employee', 4 } },
+	{ name = 'getSchema first property shape',
+	  func = testGetSchemaPropertyShape, expect = { 'LegalName', 'text', true } },
+	{ name = 'getSchema select options are one-indexed',
+	  func = testGetSchemaSelectOptionsAreOneIndexed, expect = { 'Active', 'On leave' } },
+	{ name = 'getSchema returns nil for missing schema',
+	  func = testGetSchemaReturnsNilForMissingSchema, expect = { nil } },
 
 }
 

@@ -24,7 +24,9 @@ use ProfessionalWiki\NeoWiki\Domain\Subject\SubjectLabel;
 use ProfessionalWiki\NeoWiki\Domain\Subject\SubjectMap;
 use ProfessionalWiki\NeoWiki\Domain\Value\NumberValue;
 use ProfessionalWiki\NeoWiki\Domain\Value\StringValue;
+use ProfessionalWiki\NeoWiki\EntryPoints\Content\SchemaContent;
 use ProfessionalWiki\NeoWiki\EntryPoints\Content\SubjectContent;
+use ProfessionalWiki\NeoWiki\NeoWikiExtension;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\Subject\MediaWikiSubjectRepository;
 
 /**
@@ -56,6 +58,29 @@ abstract class NeoWikiLibraryTestBase extends LuaEngineTestBase {
 	}
 
 	private function createTestData(): void {
+		$this->createSchemaPage( 'Employee', json_encode( [
+			'description' => 'A person employed by a company',
+			'propertyDefinitions' => [
+				'LegalName' => [ 'type' => 'text', 'required' => true ],
+				'EmploymentFte' => [
+					'type' => 'number',
+					'minimum' => 0,
+					'maximum' => 100,
+					'default' => 100,
+				],
+				'Status' => [
+					'type' => 'select',
+					'required' => true,
+					'options' => [ 'Active', 'Inactive', 'On leave' ],
+				],
+				'Employer' => [
+					'type' => 'relation',
+					'relation' => 'Works for',
+					'targetSchema' => 'Company',
+				],
+			],
+		] ) );
+
 		$this->createPageWithSubjects(
 			'NeoWikiLuaTestPage',
 			mainSubject: new Subject(
@@ -89,6 +114,16 @@ abstract class NeoWikiLibraryTestBase extends LuaEngineTestBase {
 				),
 			),
 		);
+	}
+
+	private function createSchemaPage( string $name, string $json ): void {
+		$wikiPage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle(
+			Title::newFromText( $name, NeoWikiExtension::NS_SCHEMA )
+		);
+
+		$updater = $wikiPage->newPageUpdater( $this->getTestSysop()->getUser() );
+		$updater->setContent( 'main', new SchemaContent( $json ) );
+		$updater->saveRevision( CommentStoreComment::newUnsavedComment( 'Lua test data' ) );
 	}
 
 	private function createPageWithSubjects(
