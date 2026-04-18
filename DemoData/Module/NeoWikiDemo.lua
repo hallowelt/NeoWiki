@@ -84,52 +84,101 @@ function p.children( frame )
 	return table.concat( parts, ', ' )
 end
 
+local function renderRowsAsTable( rows, columns )
+	if #rows == 0 then
+		return 'No results'
+	end
+
+	if not columns then
+		columns = {}
+		for k in pairs( rows[1] ) do
+			columns[#columns + 1] = k
+		end
+		table.sort( columns )
+	end
+
+	local out = { '{| class="wikitable"', '! ' .. table.concat( columns, ' !! ' ) }
+
+	for _, row in ipairs( rows ) do
+		local cells = {}
+		for _, col in ipairs( columns ) do
+			local v = row[col]
+			cells[#cells + 1] = v == nil and '' or tostring( v )
+		end
+		out[#out + 1] = '|-'
+		out[#out + 1] = '| ' .. table.concat( cells, ' || ' )
+	end
+
+	out[#out + 1] = '|}'
+	return table.concat( out, '\n' )
+end
+
+function p.query( frame )
+	return renderRowsAsTable( nw.query( frame.args[1] ) )
+end
+
+function p.productsFoundedSince( frame )
+	local year = tonumber( frame.args[1] ) or 2000
+
+	return renderRowsAsTable( nw.query(
+		'MATCH (n:Product) WHERE n.`Available since` >= $year ' ..
+			'RETURN n.name AS name, n.`Available since` AS year ORDER BY year',
+		{ year = year }
+	) )
+end
+
+local function propertyDetails( prop )
+	local details = {}
+
+	if prop.type == 'select' then
+		local labels = {}
+		for _, option in ipairs( prop.options ) do
+			labels[#labels + 1] = option.label
+		end
+		details[#details + 1] = 'options: ' .. table.concat( labels, ', ' )
+	elseif prop.type == 'number' then
+		if prop.minimum ~= nil then
+			details[#details + 1] = 'min: ' .. tostring( prop.minimum )
+		end
+		if prop.maximum ~= nil then
+			details[#details + 1] = 'max: ' .. tostring( prop.maximum )
+		end
+		if prop.precision ~= nil then
+			details[#details + 1] = 'precision: ' .. tostring( prop.precision )
+		end
+	elseif prop.type == 'relation' then
+		details[#details + 1] = 'targetSchema: ' .. prop.targetSchema
+		details[#details + 1] = 'relation: ' .. prop.relation
+	elseif prop.type == 'text' or prop.type == 'url' then
+		if prop.multiple then
+			details[#details + 1] = 'multiple: true'
+		end
+		if prop.uniqueItems then
+			details[#details + 1] = 'uniqueItems: true'
+		end
+	end
+
+	return table.concat( details, ', ' )
+end
+
 function p.schema( frame )
-	local schemaName = frame.args[1]
-	local schema = nw.getSchema( schemaName )
+	local schema = nw.getSchema( frame.args[1] )
 
 	if not schema then
 		return 'Schema not found'
 	end
 
 	local rows = {}
-	rows[#rows + 1] = '{| class="wikitable"'
-	rows[#rows + 1] = '! Name !! Type !! Required !! Details'
-
 	for _, prop in ipairs( schema.properties ) do
-		local required = prop.required and 'Yes' or 'No'
-		local details = {}
-
-		if prop.type == 'select' then
-			details[#details + 1] = 'options: ' .. table.concat( prop.options, ', ' )
-		elseif prop.type == 'number' then
-			if prop.minimum ~= nil then
-				details[#details + 1] = 'min: ' .. tostring( prop.minimum )
-			end
-			if prop.maximum ~= nil then
-				details[#details + 1] = 'max: ' .. tostring( prop.maximum )
-			end
-			if prop.precision ~= nil then
-				details[#details + 1] = 'precision: ' .. tostring( prop.precision )
-			end
-		elseif prop.type == 'relation' then
-			details[#details + 1] = 'targetSchema: ' .. prop.targetSchema
-			details[#details + 1] = 'relation: ' .. prop.relation
-		elseif prop.type == 'text' or prop.type == 'url' then
-			if prop.multiple then
-				details[#details + 1] = 'multiple: true'
-			end
-			if prop.uniqueItems then
-				details[#details + 1] = 'uniqueItems: true'
-			end
-		end
-
-		rows[#rows + 1] = '|-'
-		rows[#rows + 1] = '| ' .. prop.name .. ' || ' .. prop.type .. ' || ' .. required .. ' || ' .. table.concat( details, ', ' )
+		rows[#rows + 1] = {
+			Name = prop.name,
+			Type = prop.type,
+			Required = prop.required and 'Yes' or 'No',
+			Details = propertyDetails( prop ),
+		}
 	end
 
-	rows[#rows + 1] = '|}'
-	return table.concat( rows, '\n' )
+	return renderRowsAsTable( rows, { 'Name', 'Type', 'Required', 'Details' } )
 end
 
 return p

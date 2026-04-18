@@ -71,7 +71,11 @@ abstract class NeoWikiLibraryTestBase extends LuaEngineTestBase {
 				'Status' => [
 					'type' => 'select',
 					'required' => true,
-					'options' => [ 'Active', 'Inactive', 'On leave' ],
+					'options' => [
+						[ 'id' => 'o1test1aaaaaaa1', 'label' => 'Active' ],
+						[ 'id' => 'o1test1aaaaaaa2', 'label' => 'Inactive' ],
+						[ 'id' => 'o1test1aaaaaaa3', 'label' => 'On leave' ],
+					],
 				],
 				'Employer' => [
 					'type' => 'relation',

@@ -11,6 +11,7 @@ use ProfessionalWiki\NeoWiki\Domain\Schema\PropertyDefinitions;
 use ProfessionalWiki\NeoWiki\Domain\Schema\Property\NumberProperty;
 use ProfessionalWiki\NeoWiki\Domain\Schema\Property\RelationProperty;
 use ProfessionalWiki\NeoWiki\Domain\Relation\RelationType;
+use ProfessionalWiki\NeoWiki\Domain\Schema\Property\SelectOption;
 use ProfessionalWiki\NeoWiki\Domain\Schema\Property\SelectProperty;
 use ProfessionalWiki\NeoWiki\Domain\Schema\Property\TextProperty;
 use ProfessionalWiki\NeoWiki\Domain\Schema\Property\UrlProperty;
@@ -154,7 +155,11 @@ class SchemaLuaSerializerTest extends TestCase {
 		$schema = $this->schemaWith( [
 			'Status' => new SelectProperty(
 				$this->coreRequired(),
-				options: [ 'Active', 'Inactive', 'Archived' ],
+				options: [
+					new SelectOption( 'opt1', 'Active' ),
+					new SelectOption( 'opt2', 'Inactive' ),
+					new SelectOption( 'opt3', 'Archived' ),
+				],
 				multiple: false
 			),
 		] );
@@ -162,7 +167,11 @@ class SchemaLuaSerializerTest extends TestCase {
 		$prop = $this->newSerializer()->toLuaTable( $schema )['properties'][1];
 
 		$this->assertSame(
-			[ 1 => 'Active', 2 => 'Inactive', 3 => 'Archived' ],
+			[
+				1 => [ 'id' => 'opt1', 'label' => 'Active' ],
+				2 => [ 'id' => 'opt2', 'label' => 'Inactive' ],
+				3 => [ 'id' => 'opt3', 'label' => 'Archived' ],
+			],
 			$prop['options']
 		);
 	}

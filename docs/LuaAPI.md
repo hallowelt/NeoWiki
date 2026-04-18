@@ -11,6 +11,7 @@ enough.
 | Read every value from a multi-valued property | [`nw.getAll`](#nwgetallpropertyname-options) |
 | Get a page's Main Subject (label, schema, all properties) | [`nw.getMainSubject`](#nwgetmainsubjectpagename) |
 | Get a Subject by its ID, regardless of which page it's on | [`nw.getSubject`](#nwgetsubjectsubjectid) |
+| Run a read-only Cypher query | [`nw.query`](#nwquerycypher-params) |
 | List all Child Subjects on a page | [`nw.getChildSubjects`](#nwgetchildsubjectspagename) |
 | Inspect a Schema | [`nw.getSchema`](#nwgetschemaname) |
 
@@ -158,70 +159,148 @@ for _, child in ipairs(children) do
 end
 ```
 
-### `nw.getSchema(name)`
+### `nw.query(cypher, params)`
 
-Returns the definition of a Schema as a Lua table, including all its Property Definitions.
+Runs a read-only Cypher query against the graph database and returns each row as a Lua table. Use
+this when a single property lookup is not enough — for example, to join multiple Subjects, filter
+or sort in the query, or build a custom table.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `name` | string | Required. The name of the Schema (e.g. `'Company'`). |
+| `cypher` | string | Required. A Cypher query. Must be read-only (no `CREATE`, `SET`, `DELETE`, etc.). |
+| `params` | table | Optional. Parameter name → value. Use `$name` in the query to reference them. |
 
 #### Returns
 
-A table with the following fields, or `nil` if the Schema does not exist:
+A 1-indexed Lua table of rows. Each row is a string-keyed table where the keys are the Cypher
+`RETURN` aliases. An empty result is returned as `{}`, so it is safe to iterate with `ipairs`
+without a `nil` check.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | string | The Schema name. |
-| `description` | string | Present only when the description is non-empty. |
-| `properties` | table | 1-indexed list of property tables, in schema-defined order. |
+Scalar values come back as strings, numbers, booleans, or `nil`. Nested Cypher lists become
+1-indexed tables; Cypher maps become string-keyed tables. Graph types convert as follows:
 
-Each entry in `properties` always contains `name`, `type`, and `required`. Additional fields depend
-on the property type:
+| Cypher type | Lua shape |
+|-------------|-----------|
+| Node | `{ id, labels, properties }` |
+| Relationship | `{ id, type, startNodeId, endNodeId, properties }` |
+| Path | `{ nodes, relationships }` |
 
-| Type | Always present | Present when set |
-|------|----------------|------------------|
-| `text` | `name`, `type`, `required`, `multiple`, `uniqueItems` | `description`, `default` |
-| `url` | `name`, `type`, `required`, `multiple`, `uniqueItems` | `description`, `default` |
-| `number` | `name`, `type`, `required` | `description`, `default`, `precision`, `minimum`, `maximum` |
-| `select` | `name`, `type`, `required`, `multiple`, `options` (1-indexed list) | `description`, `default` |
-| `relation` | `name`, `type`, `required`, `multiple`, `relation`, `targetSchema` | `description`, `default` |
+Temporal and spatial values (from Cypher functions like `datetime()` or `point()`) are not
+supported. Cast to a scalar in the query — e.g. `toString(datetime())` or `point.x(p)`.
 
-Optional fields are **omitted** from the returned table when empty or unset. Check for presence
-before using them: `if prop.description then ... end`. Boolean fields in the "always present"
-column (such as `required`, `multiple`, `uniqueItems`) are always emitted, including when
-`false` — compare the value directly, don't check for presence.
+#### Errors
 
-The `Schema does not exist` case also covers an empty/whitespace-only name or a reserved name
-(`page`, `subject`); all of these return `nil` rather than erroring.
+Always throws on failure; wrap in `pcall` if you need graceful degradation.
 
-#### Error behaviour
+- Empty or whitespace-only `cypher`.
+- Write or non-read-only queries.
+- Cypher syntax errors, missing parameters, or database errors.
 
-| Case | Behaviour |
-|------|-----------|
-| `name` missing or not a string | Raises a Lua error |
-| Schema does not exist | Returns `nil` |
+#### Expensive
 
-#### Performance note
-
-Always counts as an expensive parser function (against the page's expensive function limit).
+Every call counts as an expensive parser function. Keep an eye on your page's expensive function
+limit if a template calls `nw.query` in a loop.
 
 #### Examples
 
 ```lua
--- Basic: fetch a schema and read its first property name
-local schema = nw.getSchema('Company')
--- schema.name             --> "Company"
--- schema.properties[1].name  --> first property name
+local rows = nw.query( 'MATCH (s:Subject) RETURN s.name LIMIT 5' )
+
+for _, row in ipairs( rows ) do
+    mw.log( row['s.name'] )
+end
 ```
 
 ```lua
--- Generic: list all properties of this page's main subject schema
-local subject = nw.getMainSubject()
-local schema = nw.getSchema(subject.schema)
+-- Parameterised — always prefer this over concatenating values into the query.
+local rows = nw.query(
+    'MATCH (s:Subject {schema: $schema}) WHERE s.`Valid` = $valid RETURN s.name, s.`Expiry date`',
+    { schema = 'ISMS Document', valid = 'Yes' }
+)
+```
 
-for _, prop in ipairs(schema.properties) do
-    mw.log(prop.name .. ' (' .. prop.type .. ')')
+Integer comparisons need an explicit cast in the query — e.g. `WHERE s.year = toInteger($year)`.
+
+### `nw.getSchema(name)`
+
+Returns a Schema as a Lua table so your module can inspect it at runtime. Use it to build generic
+infoboxes, render a property list for any Schema, or check what properties a Subject should have —
+without hardcoding property names.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | string | Required. The Schema name (e.g. `'Company'`). |
+
+#### Returns
+
+A Schema table, or `nil` if no Schema with that name exists. An empty or whitespace-only `name`
+and the reserved names `page` and `subject` also return `nil`, so bad input never errors — always
+guard with `if schema then`.
+
+Top-level fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | The Schema name. |
+| `description` | string | The Schema description. Omitted when empty. |
+| `properties` | table | 1-indexed list of properties, in Schema-defined order. |
+
+Every property entry has `name`, `type`, and `required`. Further fields depend on `type`:
+
+| Property type | Always present | Present only when set |
+|---------------|----------------|------------------------|
+| `text` | `multiple`, `uniqueItems` | `description`, `default` |
+| `url`  | `multiple`, `uniqueItems` | `description`, `default` |
+| `number` | — | `description`, `default`, `precision`, `minimum`, `maximum` |
+| `select` | `multiple`, `options` (1-indexed list of `{ id, label }` entries) | `description`, `default` |
+| `relation` | `multiple`, `relation`, `targetSchema` | `description`, `default` |
+
+Optional fields are **omitted entirely** when unset, so check with `if prop.description then …`.
+Boolean flags in the "always present" column (such as `required`, `multiple`, `uniqueItems`) are
+emitted even when `false` — read them directly. `if prop.required then` would silently skip
+`false` as well as missing.
+
+#### Errors
+
+Raises a Lua error only when `name` is missing or not a string. Every other case — unknown Schema,
+empty string, reserved name — returns `nil`.
+
+#### Expensive
+
+Every call counts as an expensive parser function against the page's limit. Call `nw.getSchema`
+once per page and reuse the result rather than re-fetching inside a loop.
+
+#### Examples
+
+```lua
+-- Fetch a Schema and read its first property.
+local schema = nw.getSchema( 'Company' )
+if schema then
+    mw.log( schema.name )                --> "Company"
+    mw.log( schema.properties[1].name )  --> first property's name
+end
+```
+
+```lua
+-- Render a property overview for the current page's Main Subject — works
+-- for any Schema, because nothing is hardcoded.
+local subject = nw.getMainSubject()
+local schema = subject and nw.getSchema( subject.schema )
+
+if schema then
+    for _, prop in ipairs( schema.properties ) do
+        local tag = prop.required and ' (required)' or ''
+        mw.log( prop.name .. ' — ' .. prop.type .. tag )
+    end
+end
+```
+
+```lua
+-- Read optional fields only after checking they're set.
+for _, prop in ipairs( schema.properties ) do
+    if prop.type == 'number' and prop.minimum then
+        mw.log( prop.name .. ' min: ' .. prop.minimum )
+    end
 end
 ```
 
@@ -267,13 +346,6 @@ Notes:
 
 Calls that look up another page or a specific Subject ID count as expensive parser functions
 (against the page's expensive function limit). Calls that read from the current page do not.
-
-## Planned additions
-
-The following are not yet implemented:
-
-- `nw.query(cypher, params)` — Execute Cypher queries from Lua. Tracked in
-  [#736](https://github.com/ProfessionalWiki/NeoWiki/issues/736).
 
 ## Related Documentation
 

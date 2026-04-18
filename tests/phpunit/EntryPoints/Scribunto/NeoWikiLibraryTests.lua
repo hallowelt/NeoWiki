@@ -85,6 +85,28 @@ local function testGetChildSubjectsEmptyForPageWithoutChildren()
 	return #children
 end
 
+-- query tests
+
+local function testQueryRejectsEmptyString()
+	local ok = pcall( function()
+		return nw.query( '' )
+	end )
+	if ok then
+		return 'unexpected success'
+	end
+	return 'error'
+end
+
+local function testQueryRejectsWriteQuery()
+	local ok = pcall( function()
+		return nw.query( 'CREATE (n:Foo) RETURN n' )
+	end )
+	if ok then
+		return 'unexpected success'
+	end
+	return 'error'
+end
+
 -- getSchema tests
 
 local function testGetSchemaReturnsNameAndPropertyCount()
@@ -105,7 +127,7 @@ local function testGetSchemaSelectOptionsAreOneIndexed()
 	if not s then return 'nil' end
 	for _, p in ipairs( s.properties ) do
 		if p.name == 'Status' then
-			return p.options[1], p.options[3]
+			return p.options[1].label, p.options[3].label
 		end
 	end
 	return 'not-found'
@@ -185,6 +207,12 @@ local tests = {
 	  func = testGetChildSubjectsHasLabels, expect = { 'Child Entry', 'Entry' } },
 	{ name = 'getChildSubjects returns empty for page without children',
 	  func = testGetChildSubjectsEmptyForPageWithoutChildren, expect = { 0 } },
+
+	-- query
+	{ name = 'query rejects empty string',
+	  func = testQueryRejectsEmptyString, expect = { 'error' } },
+	{ name = 'query rejects write query',
+	  func = testQueryRejectsWriteQuery, expect = { 'error' } },
 
 	-- getSchema
 	{ name = 'getSchema returns name and property count',
