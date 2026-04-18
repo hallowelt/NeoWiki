@@ -29,6 +29,7 @@ use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\SchemaContentValidator;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\Subject\MediaWikiSubjectRepository;
 use ProfessionalWiki\NeoWiki\Persistence\MediaWiki\LayoutContentValidator;
 use ProfessionalWiki\NeoWiki\Presentation\JsonSchemaErrorFormatter;
+use ProfessionalWiki\NeoWiki\Presentation\PageToolsBuilder;
 use MediaWiki\SpecialPage\SpecialPage;
 use Skin;
 use WikiPage;
@@ -51,10 +52,6 @@ class NeoWikiHooks {
 	}
 
 	private static function handleContentPage( OutputPage $out ): void {
-		if ( NeoWikiExtension::getInstance()->isDevelopmentUIEnabled() ) {
-			$out->addHTML( NeoWikiExtension::getInstance()->getFactBox()->htmlFor( $out->getTitle() ) );
-		}
-
 		$out->addModules( 'ext.neowiki' );
 		$out->addModuleStyles( 'ext.neowiki.styles' );
 		$out->addHtml( self::getNeoWikiAppHtml( $out ) );
@@ -298,6 +295,25 @@ class NeoWikiHooks {
 					'id' => 't-neowiki-layouts',
 				]
 			);
+		}
+
+		$extension = NeoWikiExtension::getInstance();
+
+		$pageToolsItems = ( new PageToolsBuilder() )->build(
+			title: $title,
+			isContentNamespace: MediaWikiServices::getInstance()
+				->getNamespaceInfo()
+				->isContent( $title->getNamespace() ),
+			canCreateMainSubject: $extension->newSubjectAuthorizer( $skin->getAuthority() )->canCreateMainSubject(),
+			isLatestRevision: self::pageIsLatestRevision( $skin->getOutput() ),
+			pageHasSubjects: $extension->newViewHtmlBuilder()->pageHasSubjects( $title ),
+			devUiEnabled: $extension->isDevelopmentUIEnabled()
+		);
+
+		if ( $pageToolsItems !== [] ) {
+			// The section array key is used by MediaWiki as the message key for
+			// the section heading, so it must match an existing message name.
+			$sidebar['neowiki-page-tools-label'] = $pageToolsItems;
 		}
 	}
 

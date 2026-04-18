@@ -9,6 +9,7 @@ import { SubjectWithContext } from '@/domain/SubjectWithContext.ts';
 export const useSubjectStore = defineStore( 'subject', {
 	state: () => ( {
 		subjects: new Map<string, Subject>(),
+		subjectCreatorOpen: false,
 	} ),
 	getters: {
 		getSubject: ( state ) => function ( id: SubjectId ): Subject | undefined {
@@ -67,6 +68,13 @@ export const useSubjectStore = defineStore( 'subject', {
 				),
 			);
 			return subjectId;
+		},
+
+		openSubjectCreator(): void {
+			this.subjectCreatorOpen = true;
+		},
+		closeSubjectCreator(): void {
+			this.subjectCreatorOpen = false;
 		},
 	},
 } );
