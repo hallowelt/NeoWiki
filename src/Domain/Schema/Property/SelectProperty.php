@@ -58,7 +58,7 @@ class SelectProperty extends PropertyDefinition {
 		);
 	}
 
-	protected function nonCoreToJson(): array {
+	public function nonCoreToJson(): array {
 		return [
 			'options' => array_map( fn( SelectOption $o ): array => $o->toJson(), $this->options ),
 			'multiple' => $this->allowsMultipleValues(),

@@ -62,6 +62,18 @@ nw.query(
 
 Products available since 2010: {{#invoke:NeoWikiDemo|productsFoundedSince|2010}}
 
+== Inspecting a Schema ==
+
+<code>mw.neowiki.getSchema()</code> returns a Schema definition as a Lua table, including all property names, types, and type-specific attributes. This enables templates to render or validate any schema without hardcoding property names.
+
+=== Company ===
+
+{{#invoke:NeoWikiDemo|schema|Company}}
+
+=== Employee ===
+
+{{#invoke:NeoWikiDemo|schema|Employee}}
+
 == Module Source ==
 
 The demo module uses these <code>mw.neowiki</code> functions:

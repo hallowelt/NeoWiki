@@ -13,6 +13,7 @@ enough.
 | Get a Subject by its ID, regardless of which page it's on | [`nw.getSubject`](#nwgetsubjectsubjectid) |
 | Run a read-only Cypher query | [`nw.query`](#nwquerycypher-params) |
 | List all Child Subjects on a page | [`nw.getChildSubjects`](#nwgetchildsubjectspagename) |
+| Inspect a Schema | [`nw.getSchema`](#nwgetschemaname) |
 
 For definitions of terms like Subject, Schema, and Statement, see the [Glossary](Glossary.md).
 
@@ -220,6 +221,89 @@ local rows = nw.query(
 
 Integer comparisons need an explicit cast in the query — e.g. `WHERE s.year = toInteger($year)`.
 
+### `nw.getSchema(name)`
+
+Returns a Schema as a Lua table so your module can inspect it at runtime. Use it to build generic
+infoboxes, render a property list for any Schema, or check what properties a Subject should have —
+without hardcoding property names.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | string | Required. The Schema name (e.g. `'Company'`). |
+
+#### Returns
+
+A Schema table, or `nil` if no Schema with that name exists. An empty or whitespace-only `name`
+and the reserved names `page` and `subject` also return `nil`, so bad input never errors — always
+guard with `if schema then`.
+
+Top-level fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | The Schema name. |
+| `description` | string | The Schema description. Omitted when empty. |
+| `properties` | table | 1-indexed list of properties, in Schema-defined order. |
+
+Every property entry has `name`, `type`, and `required`. Further fields depend on `type`:
+
+| Property type | Always present | Present only when set |
+|---------------|----------------|------------------------|
+| `text` | `multiple`, `uniqueItems` | `description`, `default` |
+| `url`  | `multiple`, `uniqueItems` | `description`, `default` |
+| `number` | — | `description`, `default`, `precision`, `minimum`, `maximum` |
+| `select` | `multiple`, `options` (1-indexed list of `{ id, label }` entries) | `description`, `default` |
+| `relation` | `multiple`, `relation`, `targetSchema` | `description`, `default` |
+
+Optional fields are **omitted entirely** when unset, so check with `if prop.description then …`.
+Boolean flags in the "always present" column (such as `required`, `multiple`, `uniqueItems`) are
+emitted even when `false` — read them directly. `if prop.required then` would silently skip
+`false` as well as missing.
+
+#### Errors
+
+Raises a Lua error only when `name` is missing or not a string. Every other case — unknown Schema,
+empty string, reserved name — returns `nil`.
+
+#### Expensive
+
+Every call counts as an expensive parser function against the page's limit. Call `nw.getSchema`
+once per page and reuse the result rather than re-fetching inside a loop.
+
+#### Examples
+
+```lua
+-- Fetch a Schema and read its first property.
+local schema = nw.getSchema( 'Company' )
+if schema then
+    mw.log( schema.name )                --> "Company"
+    mw.log( schema.properties[1].name )  --> first property's name
+end
+```
+
+```lua
+-- Render a property overview for the current page's Main Subject — works
+-- for any Schema, because nothing is hardcoded.
+local subject = nw.getMainSubject()
+local schema = subject and nw.getSchema( subject.schema )
+
+if schema then
+    for _, prop in ipairs( schema.properties ) do
+        local tag = prop.required and ' (required)' or ''
+        mw.log( prop.name .. ' — ' .. prop.type .. tag )
+    end
+end
+```
+
+```lua
+-- Read optional fields only after checking they're set.
+for _, prop in ipairs( schema.properties ) do
+    if prop.type == 'number' and prop.minimum then
+        mw.log( prop.name .. ' min: ' .. prop.minimum )
+    end
+end
+```
+
 ## Subject table format
 
 Subject tables returned by `getMainSubject`, `getSubject`, and `getChildSubjects` have this
@@ -262,13 +346,6 @@ Notes:
 
 Calls that look up another page or a specific Subject ID count as expensive parser functions
 (against the page's expensive function limit). Calls that read from the current page do not.
-
-## Planned additions
-
-The following are not yet implemented:
-
-- `nw.getSchema(name)` — Schema introspection for generic templates. Tracked in
-  [#737](https://github.com/ProfessionalWiki/NeoWiki/issues/737).
 
 ## Related Documentation
 

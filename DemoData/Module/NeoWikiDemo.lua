@@ -84,16 +84,18 @@ function p.children( frame )
 	return table.concat( parts, ', ' )
 end
 
-local function renderRowsAsTable( rows )
+local function renderRowsAsTable( rows, columns )
 	if #rows == 0 then
 		return 'No results'
 	end
 
-	local columns = {}
-	for k in pairs( rows[1] ) do
-		columns[#columns + 1] = k
+	if not columns then
+		columns = {}
+		for k in pairs( rows[1] ) do
+			columns[#columns + 1] = k
+		end
+		table.sort( columns )
 	end
-	table.sort( columns )
 
 	local out = { '{| class="wikitable"', '! ' .. table.concat( columns, ' !! ' ) }
 
@@ -123,6 +125,60 @@ function p.productsFoundedSince( frame )
 			'RETURN n.name AS name, n.`Available since` AS year ORDER BY year',
 		{ year = year }
 	) )
+end
+
+local function propertyDetails( prop )
+	local details = {}
+
+	if prop.type == 'select' then
+		local labels = {}
+		for _, option in ipairs( prop.options ) do
+			labels[#labels + 1] = option.label
+		end
+		details[#details + 1] = 'options: ' .. table.concat( labels, ', ' )
+	elseif prop.type == 'number' then
+		if prop.minimum ~= nil then
+			details[#details + 1] = 'min: ' .. tostring( prop.minimum )
+		end
+		if prop.maximum ~= nil then
+			details[#details + 1] = 'max: ' .. tostring( prop.maximum )
+		end
+		if prop.precision ~= nil then
+			details[#details + 1] = 'precision: ' .. tostring( prop.precision )
+		end
+	elseif prop.type == 'relation' then
+		details[#details + 1] = 'targetSchema: ' .. prop.targetSchema
+		details[#details + 1] = 'relation: ' .. prop.relation
+	elseif prop.type == 'text' or prop.type == 'url' then
+		if prop.multiple then
+			details[#details + 1] = 'multiple: true'
+		end
+		if prop.uniqueItems then
+			details[#details + 1] = 'uniqueItems: true'
+		end
+	end
+
+	return table.concat( details, ', ' )
+end
+
+function p.schema( frame )
+	local schema = nw.getSchema( frame.args[1] )
+
+	if not schema then
+		return 'Schema not found'
+	end
+
+	local rows = {}
+	for _, prop in ipairs( schema.properties ) do
+		rows[#rows + 1] = {
+			Name = prop.name,
+			Type = prop.type,
+			Required = prop.required and 'Yes' or 'No',
+			Details = propertyDetails( prop ),
+		}
+	end
+
+	return renderRowsAsTable( rows, { 'Name', 'Type', 'Required', 'Details' } )
 end
 
 return p

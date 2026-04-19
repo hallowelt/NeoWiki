@@ -107,6 +107,66 @@ local function testQueryRejectsWriteQuery()
 	return 'error'
 end
 
+-- getSchema tests
+
+local function testGetSchemaReturnsNameAndPropertyCount()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	return s.name, #s.properties
+end
+
+local function testGetSchemaPropertyShape()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	local p = s.properties[1]
+	return p.name, p.type, p.required
+end
+
+local function testGetSchemaSelectOptionsAreOneIndexed()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	for _, p in ipairs( s.properties ) do
+		if p.name == 'Status' then
+			return p.options[1].label, p.options[3].label
+		end
+	end
+	return 'not-found'
+end
+
+local function testGetSchemaReturnsNilForMissingSchema()
+	return nw.getSchema( 'NopeDoesNotExist' )
+end
+
+local function testGetSchemaReturnsNilForEmptyString()
+	return nw.getSchema( '' )
+end
+
+local function testGetSchemaReturnsNilForReservedName()
+	return nw.getSchema( 'page' )
+end
+
+local function testGetSchemaNumberPropertyBoundsAndDefault()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	for _, p in ipairs( s.properties ) do
+		if p.name == 'EmploymentFte' then
+			return p.type, p.minimum, p.maximum, p.default
+		end
+	end
+	return 'not-found'
+end
+
+local function testGetSchemaRelationPropertyTargetSchema()
+	local s = nw.getSchema( 'Employee' )
+	if not s then return 'nil' end
+	for _, p in ipairs( s.properties ) do
+		if p.name == 'Employer' then
+			return p.type, p.relation, p.targetSchema
+		end
+	end
+	return 'not-found'
+end
+
 local tests = {
 	-- getValue
 	{ name = 'getValue returns string value',
@@ -153,6 +213,24 @@ local tests = {
 	  func = testQueryRejectsEmptyString, expect = { 'error' } },
 	{ name = 'query rejects write query',
 	  func = testQueryRejectsWriteQuery, expect = { 'error' } },
+
+	-- getSchema
+	{ name = 'getSchema returns name and property count',
+	  func = testGetSchemaReturnsNameAndPropertyCount, expect = { 'Employee', 4 } },
+	{ name = 'getSchema first property shape',
+	  func = testGetSchemaPropertyShape, expect = { 'LegalName', 'text', true } },
+	{ name = 'getSchema select options are one-indexed',
+	  func = testGetSchemaSelectOptionsAreOneIndexed, expect = { 'Active', 'On leave' } },
+	{ name = 'getSchema returns nil for missing schema',
+	  func = testGetSchemaReturnsNilForMissingSchema, expect = { nil } },
+	{ name = 'getSchema returns nil for empty string',
+	  func = testGetSchemaReturnsNilForEmptyString, expect = { nil } },
+	{ name = 'getSchema returns nil for reserved name',
+	  func = testGetSchemaReturnsNilForReservedName, expect = { nil } },
+	{ name = 'getSchema number property exposes bounds and default',
+	  func = testGetSchemaNumberPropertyBoundsAndDefault, expect = { 'number', 0, 100, 100 } },
+	{ name = 'getSchema relation property exposes relation and targetSchema',
+	  func = testGetSchemaRelationPropertyTargetSchema, expect = { 'relation', 'Works for', 'Company' } },
 
 }
 

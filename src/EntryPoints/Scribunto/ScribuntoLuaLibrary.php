@@ -5,14 +5,17 @@ declare( strict_types = 1 );
 namespace ProfessionalWiki\NeoWiki\EntryPoints\Scribunto;
 
 use Exception;
+use InvalidArgumentException;
 use MediaWiki\Extension\Scribunto\Engines\LuaCommon\LibraryBase;
 use MediaWiki\Extension\Scribunto\Engines\LuaCommon\LuaError;
 use ProfessionalWiki\NeoWiki\Application\SubjectResolver;
+use ProfessionalWiki\NeoWiki\Domain\Schema\SchemaName;
 use ProfessionalWiki\NeoWiki\NeoWikiExtension;
 
 class ScribuntoLuaLibrary extends LibraryBase {
 
 	private ?SubjectDataLookup $subjectDataLookup = null;
+	private ?SchemaLuaSerializer $schemaLuaSerializer = null;
 	private ?CypherQueryRunner $cypherQueryRunner = null;
 
 	private function getSubjectDataLookup(): SubjectDataLookup {
@@ -28,6 +31,13 @@ class ScribuntoLuaLibrary extends LibraryBase {
 		}
 
 		return $this->subjectDataLookup;
+	}
+
+	private function getSchemaLuaSerializer(): SchemaLuaSerializer {
+		if ( $this->schemaLuaSerializer === null ) {
+			$this->schemaLuaSerializer = new SchemaLuaSerializer();
+		}
+		return $this->schemaLuaSerializer;
 	}
 
 	private function getCypherQueryRunner(): CypherQueryRunner {
@@ -52,6 +62,7 @@ class ScribuntoLuaLibrary extends LibraryBase {
 			'getSubject' => [ $this, 'getSubject' ],
 			'getChildSubjects' => [ $this, 'getChildSubjects' ],
 			'query' => [ $this, 'query' ],
+			'getSchema' => [ $this, 'getSchema' ],
 		];
 
 		return $this->getEngine()->registerInterface(
@@ -118,6 +129,25 @@ class ScribuntoLuaLibrary extends LibraryBase {
 		}
 
 		return [ $rows ];
+	}
+
+	public function getSchema( ?string $schemaName = null ): array {
+		$this->checkType( 'mw.neowiki.getSchema', 1, $schemaName, 'string' );
+		$this->incrementExpensiveFunctionCount();
+
+		try {
+			$name = new SchemaName( $schemaName );
+		} catch ( InvalidArgumentException ) {
+			return [ null ];
+		}
+
+		$schema = NeoWikiExtension::getInstance()->getSchemaLookup()->getSchema( $name );
+
+		if ( $schema === null ) {
+			return [ null ];
+		}
+
+		return [ $this->getSchemaLuaSerializer()->toLuaTable( $schema ) ];
 	}
 
 }
