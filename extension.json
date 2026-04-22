@@ -118,6 +118,10 @@
 		"Layouts": "ProfessionalWiki\\NeoWiki\\EntryPoints\\SpecialPages\\SpecialLayouts"
 	},
 
+	"Actions": {
+		"subjects": "ProfessionalWiki\\NeoWiki\\EntryPoints\\Actions\\SubjectsAction"
+	},
+
 	"config": {
 		"NeoWikiEnableDevelopmentUI": {
 			"description": "Whether development UIs should be enabled",
@@ -141,6 +145,16 @@
 			"path": "/neowiki/v0/page/{pageId}/childSubjects",
 			"method": [ "POST" ],
 			"factory": "ProfessionalWiki\\NeoWiki\\NeoWikiExtension::newCreateChildSubjectApi"
+		},
+		{
+			"path": "/neowiki/v0/page/{pageId}/subjects",
+			"method": [ "GET" ],
+			"factory": "ProfessionalWiki\\NeoWiki\\NeoWikiExtension::newGetPageSubjectsApi"
+		},
+		{
+			"path": "/neowiki/v0/page/{pageId}/mainSubject",
+			"method": [ "PUT" ],
+			"factory": "ProfessionalWiki\\NeoWiki\\NeoWikiExtension::newSetMainSubjectApi"
 		},
 		{
 			"path": "/neowiki/v0/subject/{subjectId}",
@@ -419,7 +433,31 @@
 				"neowiki-layout-delete-confirm-delete",
 				"neowiki-layout-delete-summary-default",
 				"neowiki-layout-delete-success",
-				"neowiki-layout-delete-error"
+				"neowiki-layout-delete-error",
+				"neowiki-managesubjects-title",
+				"neowiki-managesubjects-not-applicable",
+				"neowiki-managesubjects-add-button",
+				"neowiki-managesubjects-empty",
+				"neowiki-managesubjects-main-subject-label",
+				"neowiki-managesubjects-main-subject-none",
+				"neowiki-managesubjects-main-subject-changed",
+				"neowiki-managesubjects-main-subject-error",
+				"neowiki-managesubjects-main-subject-pill",
+				"neowiki-managesubjects-row-edit",
+				"neowiki-managesubjects-row-delete",
+				"neowiki-managesubjects-row-expand",
+				"neowiki-managesubjects-row-collapse",
+				"neowiki-managesubjects-no-statements",
+				"neowiki-managesubjects-delete-summary-default",
+				"neowiki-managesubjects-delete-confirm-title",
+				"neowiki-managesubjects-delete-confirm-message",
+				"neowiki-managesubjects-delete-confirm-button",
+				"neowiki-managesubjects-delete-success",
+				"neowiki-managesubjects-delete-error",
+				"neowiki-managesubjects-load-error",
+				"neowiki-managesubjects-id-copy",
+				"neowiki-managesubjects-id-copied",
+				"neowiki-managesubjects-id-copy-error"
 			],
 			"@group:": "TODO: Load code separately while in development. Remove later.",
 			"group": "ext.neowiki"

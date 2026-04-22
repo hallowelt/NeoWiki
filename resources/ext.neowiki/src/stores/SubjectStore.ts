@@ -6,13 +6,16 @@ import { SchemaName } from '@/domain/Schema.ts';
 import { StatementList } from '@/domain/StatementList.ts';
 import { PageIdentifiers } from '@/domain/PageIdentifiers.ts';
 import { SubjectWithContext } from '@/domain/SubjectWithContext.ts';
+import { PageSubjects } from '@/domain/PageSubjects.ts';
+import { useSchemaStore } from '@/stores/SchemaStore.ts';
 export const useSubjectStore = defineStore( 'subject', {
 	state: () => ( {
 		subjects: new Map<string, Subject>(),
 		subjectCreatorOpen: false,
+		pageSubjects: null as PageSubjects | null,
 	} ),
 	getters: {
-		getSubject: ( state ) => function ( id: SubjectId ): Subject | undefined {
+		getSubject: ( state ) => function ( id: SubjectId ): Subject {
 			const subject = state.subjects.get( id.text );
 
 			if ( subject === undefined ) {
@@ -30,7 +33,7 @@ export const useSubjectStore = defineStore( 'subject', {
 			const subject = await NeoWikiExtension.getInstance().getSubjectRepository().getSubject( id );
 			this.setSubject( subject );
 		},
-		async getOrFetchSubject( id: SubjectId ): Promise<Subject | undefined> {
+		async getOrFetchSubject( id: SubjectId ): Promise<Subject> {
 			if ( !this.subjects.has( id.text ) ) {
 				await this.fetchSubject( id );
 			}
@@ -40,8 +43,8 @@ export const useSubjectStore = defineStore( 'subject', {
 			await NeoWikiExtension.getInstance().getSubjectRepository().updateSubject( subject.getId(), subject.getLabel(), subject.getStatements(), comment );
 			this.setSubject( subject );
 		},
-		async deleteSubject( subjectId: SubjectId ): Promise<void> {
-			await NeoWikiExtension.getInstance().getSubjectRepository().deleteSubject( subjectId );
+		async deleteSubject( subjectId: SubjectId, comment?: string ): Promise<void> {
+			await NeoWikiExtension.getInstance().getSubjectRepository().deleteSubject( subjectId, comment );
 			this.subjects.delete( subjectId.text );
 		},
 		async createMainSubject( pageId: number, label: string, schemaName: SchemaName, statements: StatementList, comment?: string ): Promise<SubjectId> {
@@ -95,6 +98,30 @@ export const useSubjectStore = defineStore( 'subject', {
 		},
 		closeSubjectCreator(): void {
 			this.subjectCreatorOpen = false;
+		},
+
+		async loadPageSubjects( pageId: number ): Promise<void> {
+			const repository = NeoWikiExtension.getInstance().getSubjectRepository();
+			const result = await repository.getPageSubjects( pageId );
+
+			this.pageSubjects = result.pageSubjects;
+
+			for ( const subject of result.pageSubjects.getSubjects() ) {
+				this.setSubject( subject );
+			}
+			for ( const subject of result.referencedSubjects ) {
+				this.setSubject( subject );
+			}
+
+			const schemaStore = useSchemaStore();
+			for ( const schema of result.schemas ) {
+				schemaStore.setSchema( schema.getName(), schema );
+			}
+		},
+
+		async setPageMainSubject( pageId: number, subjectId: SubjectId | null, comment?: string ): Promise<void> {
+			await NeoWikiExtension.getInstance().getSubjectRepository().setMainSubject( pageId, subjectId, comment );
+			await this.loadPageSubjects( pageId );
 		},
 	},
 } );

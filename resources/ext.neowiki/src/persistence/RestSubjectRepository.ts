@@ -1,6 +1,11 @@
 import type { SubjectRepository } from '@/domain/SubjectRepository';
 import { SubjectId } from '@/domain/SubjectId';
 import type { SubjectDeserializer } from '@/persistence/SubjectDeserializer';
+import {
+	PageSubjectsDeserializer,
+	type DeserializedPageSubjects,
+	type PageSubjectsJson,
+} from '@/persistence/PageSubjectsDeserializer';
 import { StatementList, statementsToJson } from '@/domain/StatementList';
 import { type SchemaName } from '@/domain/Schema';
 import type { HttpClient } from '@/infrastructure/HttpClient/HttpClient';
@@ -25,6 +30,38 @@ export class RestSubjectRepository implements SubjectRepository {
 		private readonly subjectDeserializer: SubjectDeserializer,
 		private readonly revisionId?: number,
 	) {
+	}
+
+	public async getPageSubjects( pageId: number ): Promise<DeserializedPageSubjects> {
+		const response = await this.httpClient.get(
+			`${ this.mediaWikiRestApiUrl }/neowiki/v0/page/${ pageId }/subjects?expand=schemas%7Crelations`,
+		);
+
+		if ( !response.ok ) {
+			throw new Error( 'Error fetching page subjects' );
+		}
+
+		const data = await response.json() as PageSubjectsJson;
+		return new PageSubjectsDeserializer( this.subjectDeserializer ).deserialize( data );
+	}
+
+	public async setMainSubject( pageId: number, subjectId: SubjectId | null, comment?: string ): Promise<void> {
+		const response = await this.httpClient.put(
+			`${ this.mediaWikiRestApiUrl }/neowiki/v0/page/${ pageId }/mainSubject`,
+			{
+				subjectId: subjectId === null ? null : subjectId.text,
+				comment,
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			},
+		);
+
+		if ( !response.ok ) {
+			throw new Error( 'Error setting main subject' );
+		}
 	}
 
 	public async getSubject( id: SubjectId ): Promise<Subject> {
@@ -137,13 +174,14 @@ export class RestSubjectRepository implements SubjectRepository {
 		return await response.json();
 	}
 
-	public async deleteSubject( id: SubjectId ): Promise<boolean> {
+	public async deleteSubject( id: SubjectId, comment?: string ): Promise<boolean> {
 		const response = await this.httpClient.delete(
 			`${ this.mediaWikiRestApiUrl }/neowiki/v0/subject/${ id.text }`,
 			{
 				headers: {
 					'Content-Type': 'application/json',
 				},
+				data: { comment },
 			},
 		);
 
