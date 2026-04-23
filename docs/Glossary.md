@@ -3,7 +3,17 @@
 Definitions of NeoWiki terms. Concepts are capitalized. Used in the code and UI
 ([Ubiquitous Language](https://softwaresystemdesign.com/domain-driven-design/ubiquitous-language/)).
 
+## Page
 
+MediaWiki concept. Also known as "Wiki page".
+
+Pages have
+
+* A **title**: shown in the URL and H1, can be changed by "moving" the page.
+* An **id**: persistent numeric auto-increment ID, sometimes useful for programmatic interaction, like via the API.
+* **Content**: wikitext, editable both via source and visual editors
+* **Subjects**: list of Subjects, can be empty ([ADR 7](adr/007_Multiple_Subjects_Per_Page.md))
+* **Main Subject**: optional identifier of a Subject in the page's Subjects list. Indicates which Subject represents the same entity as the page itself. All other Subjects stored on a page are called **Child Subjects**.
 
 ## Subject
 
@@ -16,10 +26,6 @@ Subjects have
 - A `label`: the name of the subject. Example: "John Doe". This is a string, not a reference to a page.
 - `statements`: a list of Statements
 
-Pages can have multiple Subjects ([ADR 7](adr/007_Multiple_Subjects_Per_Page.md)). They can only have a single **Main Subject**. This Subject represents the same entity as the page itself. All other Subjects stored on a page are called **Child Subjects**.
-
-TODO: The label of a main subject is the same as the page title.
-
 ### Statement
 
 Corresponds to one row in an infobox.
@@ -31,6 +37,8 @@ Statements have
 - A `value` of type Value
 
 Example: Property Name "age" with Value `42` and Property Type `number`.
+
+NeoWiki Statements are not equivalent to Wikibase Statements. The latter has a rank, qualifiers,  references, and an ID. For similar modeling, NeoWiki uses Subjects (multiple per page).
 
 ### Value
 
@@ -128,11 +136,11 @@ Display Rules have:
 ## Page Property
 
 A key-value pair stored on the Page node in the graph database. Page Properties are metadata about the wiki page
-itself, as opposed to Subject Statements which are structured data about the entities described on the page.
+itself, as opposed to Subject Statements, which are structured data about the entities described on the page.
 
 Built-in Page Properties include `name`, `creationTime`, `lastUpdated`, `categories`, and `lastEditor`. Extensions can
 contribute additional Page Properties via the Page Property Provider plugin system (see `PagePropertyProvider`
 interface).
 
-Page Properties are queryable via Cypher (e.g., `MATCH (page:Page) WHERE page.lastUpdated > datetime("2024-01-01")`)
-and are available on every Page node that has NeoWiki content.
+Page Properties are stored in the graph database. For instance, when using Neo4j, they and are available on every Page node
+and are queryable via Cypher (e.g., `MATCH (page:Page) WHERE page.lastUpdated > datetime("2024-01-01")`).
