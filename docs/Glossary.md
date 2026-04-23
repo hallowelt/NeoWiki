@@ -142,5 +142,5 @@ Built-in Page Properties include `name`, `creationTime`, `lastUpdated`, `categor
 contribute additional Page Properties via the Page Property Provider plugin system (see `PagePropertyProvider`
 interface).
 
-Page Properties are stored in the graph database. For instance, when using Neo4j, they and are available on every Page node
-and are queryable via Cypher (e.g., `MATCH (page:Page) WHERE page.lastUpdated > datetime("2024-01-01")`).
+When using Neo4j, Page Properties are available on every Page node and are queryable via Cypher
+(e.g., `MATCH (page:Page) WHERE page.lastUpdated > datetime("2024-01-01")`).
