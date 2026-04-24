@@ -34,7 +34,7 @@ import { ref, watch } from 'vue';
 import { CdxField, CdxIcon, CdxTextInput } from '@wikimedia/codex';
 import { cdxIconInfo, cdxIconClock } from '@wikimedia/codex-icons';
 import { newStringValue, StringValue, ValueType } from '@/domain/Value';
-import { DateTimeType, DateTimeProperty } from '@/domain/propertyTypes/DateTime.ts';
+import { DateTimeType, DateTimeProperty, formatDateTimeForDisplay } from '@/domain/propertyTypes/DateTime.ts';
 import { fromLocalInputValue, toLocalInputValue } from '@/domain/propertyTypes/dateTimeConversion.ts';
 import { ValueInputEmits, ValueInputExposes, ValueInputProps } from '@/components/Value/ValueInputContract.ts';
 import { NeoWikiServices } from '@/NeoWikiServices.ts';
@@ -80,8 +80,13 @@ function onInput( newValue: string ): void {
 
 function validate( value: StringValue | undefined ): void {
 	const errors = propertyType.validate( value, props.property );
-	validationError.value = errors.length === 0 ? null :
-		mw.message( `neowiki-field-${ errors[ 0 ].code }`, ...( errors[ 0 ].args ?? [] ) ).text();
+	if ( errors.length === 0 ) {
+		validationError.value = null;
+		return;
+	}
+	const error = errors[ 0 ];
+	const formattedArgs = ( ( error.args ?? [] ) as string[] ).map( formatDateTimeForDisplay );
+	validationError.value = mw.message( `neowiki-field-${ error.code }`, ...formattedArgs ).text();
 }
 
 watch( () => props.property, () => {
