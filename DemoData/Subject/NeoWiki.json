@@ -7,12 +7,12 @@
 			"statements": {
 				"Available since": {
 					"type": "number",
-					"value": 2023
+					"value": 2026
 				},
 				"Website": {
 					"type": "url",
 					"value": [
-						"https://neo.wiki"
+						"https://neowiki.ai"
 					]
 				}
 			}
